@@ -7,6 +7,7 @@ import {
 import { ApiResponse } from '../common/utils/response.util';
 import { FinancialJuiceTarget } from './target/financialjuice.target';
 import { CoinmarketCapTarget } from './target/coinmarketcap.target';
+import { YahooFinanceTarget } from './target/yahoofinance.target';
 
 /**
  * Controller for web scraping operations.
@@ -20,7 +21,8 @@ export class ScraperController {
     constructor(
         private readonly scraperService: ScraperService,
         private readonly financialJuiceTarget: FinancialJuiceTarget,
-        private readonly coinmarketCapTarget: CoinmarketCapTarget
+        private readonly coinmarketCapTarget: CoinmarketCapTarget,
+        private readonly yahooFinanceTarget: YahooFinanceTarget
     ) { }
 
     /**
@@ -199,6 +201,20 @@ export class ScraperController {
         return {
             success: true,
             data: await this.coinmarketCapTarget.scrapeLatestPrice(),
+            timestamp: new Date().toISOString(),
+        };
+    }
+
+    /**
+     * CoinmarketCap endpoint for get latest price
+     * @returns Coins
+     */
+    @Get('yahoofinance')
+    async yahooFinance(): Promise<ApiResponse> {
+        this.logger.log(`Requested to scrape Yahoo Finance`);
+        return {
+            success: true,
+            data: await this.yahooFinanceTarget.scrapeLatestNews(),
             timestamp: new Date().toISOString(),
         };
     }

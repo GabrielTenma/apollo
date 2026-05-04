@@ -5,6 +5,7 @@ import { RolesGuard } from './guards/roles.guard';
 import { TransformInterceptor } from './interceptors/transform.interceptor';
 import { LoggingInterceptor } from './interceptors/logging.interceptor';
 import { HttpExceptionFilter } from './filters/http-exception.filter';
+import { RoutineService } from './routines/services/routine.service';
 
 /**
  * Global module that aggregates and exports shared cross-cutting concerns
@@ -44,6 +45,8 @@ import { HttpExceptionFilter } from './filters/http-exception.filter';
       provide: APP_FILTER,
       useClass: HttpExceptionFilter,
     },
+    // Routine Service: For executing configurable routines
+    RoutineService,
   ],
   exports: [
     // Export the classes so they can be injected or used explicitly if needed
@@ -52,6 +55,7 @@ import { HttpExceptionFilter } from './filters/http-exception.filter';
     TransformInterceptor,
     LoggingInterceptor,
     HttpExceptionFilter,
+    RoutineService,
   ],
 })
 export class CommonModule {}
