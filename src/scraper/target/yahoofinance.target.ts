@@ -33,7 +33,8 @@ export class YahooFinanceTarget {
             waitForSelector: 'div.news-stream ul.stream-items li.stream-item.story-item',
             timeout: 30000,
             addStyleHidePopup: true,
-            pageLocatorPerformAutoScroll: true
+            pageLocatorPerformAutoScroll: true,
+            bypassCSP: true
         };
 
         // Call ScraperService (assume return { url, content: string })

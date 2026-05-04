@@ -39,21 +39,16 @@ export class ScraperController {
      *   "screenshot": true
      * }
      */
-    @Post('scrape')
-    async scrape(@Body() options: ScrapeOptions): Promise<ApiResponse> {
-        this.logger.log(`Scrape request for: ${options.url}`);
-        try {
-            const result = await this.scraperService.scrape(options);
-            return {
-                success: true,
-                data: result,
-                timestamp: new Date().toISOString(),
-            };
-        } catch (error) {
-            this.logger.error(`Scrape failed for ${options.url}:`, error);
-            throw error;
-        }
-    }
+     @Post('scrape')
+     async scrape(@Body() options: ScrapeOptions): Promise<any> {
+         this.logger.log(`Scrape request for: ${options.url}`);
+         try {
+             return await this.scraperService.scrape(options);
+         } catch (error) {
+             this.logger.error(`Scrape failed for ${options.url}:`, error);
+             throw error;
+         }
+     }
 
     /**
      * Scrapes multiple pages concurrently
@@ -72,29 +67,24 @@ export class ScraperController {
      *   }
      * }
      */
-    @Post('scrape-multiple')
-    async scrapeMultiple(
-        @Body('urls') urls: string[],
-        @Body('options') options?: Omit<ScrapeOptions, 'url'>,
-        @Body('concurrency') concurrency = 3,
-    ): Promise<ApiResponse> {
-        this.logger.log(`Scraping ${urls.length} URLs with concurrency ${concurrency}`);
-        try {
-            const results = await this.scraperService.scrapeMultiple(
-                urls,
-                options,
-                concurrency,
-            );
-            return {
-                success: true,
-                data: results,
-                timestamp: new Date().toISOString(),
-            };
-        } catch (error) {
-            this.logger.error('Multiple scrape failed:', error);
-            throw error;
-        }
-    }
+     @Post('scrape-multiple')
+     async scrapeMultiple(
+         @Body('urls') urls: string[],
+         @Body('options') options?: Omit<ScrapeOptions, 'url'>,
+         @Body('concurrency') concurrency = 3,
+     ): Promise<any> {
+         this.logger.log(`Scraping ${urls.length} URLs with concurrency ${concurrency}`);
+         try {
+             return await this.scraperService.scrapeMultiple(
+                 urls,
+                 options,
+                 concurrency,
+             );
+         } catch (error) {
+             this.logger.error('Multiple scrape failed:', error);
+             throw error;
+         }
+     }
 
     /**
      * Extracts structured data from a webpage
@@ -124,98 +114,78 @@ export class ScraperController {
      *   }
      * }
      */
-    @Post('extract')
-    async extractStructured(
-        @Body('url') url: string,
-        @Body('config') config: ExtractConfig,
-    ): Promise<ApiResponse> {
-        this.logger.log(`Extracting structured data from: ${url}`);
-        try {
-            const result = await this.scraperService.scrape({
-                url,
-                waitForSelector: config.title || undefined,
-            });
+     @Post('extract')
+     async extractStructured(
+         @Body('url') url: string,
+         @Body('config') config: ExtractConfig,
+     ): Promise<any> {
+         this.logger.log(`Extracting structured data from: ${url}`);
+         try {
+             const result = await this.scraperService.scrape({
+                 url,
+                 waitForSelector: config.title || undefined,
+             });
 
-            // Re-open page for structured extraction (simplified example)
-            const browser = await this.scraperService['getBrowser']();
-            const context = await browser.newContext();
-            const page = await context.newPage();
-            await page.goto(url, { waitUntil: 'networkidle' });
+             // Re-open page for structured extraction (simplified example)
+             const browser = await this.scraperService['getBrowser']();
+             const context = await browser.newContext();
+             const page = await context.newPage();
+             await page.goto(url, { waitUntil: 'networkidle' });
 
-            const extractedData = await this.scraperService.extractStructuredData(
-                page,
-                config,
-            );
+             const extractedData = await this.scraperService.extractStructuredData(
+                 page,
+                 config,
+             );
 
-            await context.close();
+             await context.close();
 
-            return {
-                success: true,
-                data: {
-                    url,
-                    extracted: extractedData,
-                    timestamp: new Date().toISOString(),
-                },
-                timestamp: new Date().toISOString(),
-            };
-        } catch (error) {
-            this.logger.error(`Structured extraction failed for ${url}:`, error);
-            throw error;
-        }
-    }
+             return {
+                 url,
+                 extracted: extractedData,
+                 timestamp: new Date().toISOString(),
+             };
+         } catch (error) {
+             this.logger.error(`Structured extraction failed for ${url}:`, error);
+             throw error;
+         }
+     }
 
     /**
      * Health check endpoint for the scraper service
      * @returns Health status
      */
-    @Get('health')
-    async healthCheck(): Promise<ApiResponse> {
-        return {
-            success: true,
-            data: { status: 'ok', service: 'scraper' },
-            timestamp: new Date().toISOString(),
-        };
-    }
+     @Get('health')
+     async healthCheck(): Promise<any> {
+         return { status: 'ok', service: 'scraper' };
+     }
 
     /**
      * FinancialJuice endpoint for get latest news
      * @returns News
      */
-    @Get('financialjuice')
-    async financialJuice(): Promise<ApiResponse> {
-        this.logger.log(`Requested to scrape FinancialJuice`);
-        return {
-            success: true,
-            data: await this.financialJuiceTarget.scrapeLatestNews(),
-            timestamp: new Date().toISOString(),
-        };
-    }
+     @Get('financialjuice')
+     async financialJuice(): Promise<any> {
+         this.logger.log(`Requested to scrape FinancialJuice`);
+         return await this.financialJuiceTarget.scrapeLatestNews();
+     }
 
     /**
      * CoinmarketCap endpoint for get latest price
      * @returns Coins
      */
-    @Get('coinmarketcap')
-    async coinmarketCap(): Promise<ApiResponse> {
-        this.logger.log(`Requested to scrape CoinmarketCap`);
-        return {
-            success: true,
-            data: await this.coinmarketCapTarget.scrapeLatestPrice(),
-            timestamp: new Date().toISOString(),
-        };
-    }
+     @Get('coinmarketcap')
+     async coinmarketCap(): Promise<any> {
+         this.logger.log(`Requested to scrape CoinmarketCap`);
+         return await this.coinmarketCapTarget.scrapeLatestPrice();
+     }
 
     /**
      * CoinmarketCap endpoint for get latest price
      * @returns Coins
      */
-    @Get('yahoofinance')
-    async yahooFinance(): Promise<ApiResponse> {
-        this.logger.log(`Requested to scrape Yahoo Finance`);
-        return {
-            success: true,
-            data: await this.yahooFinanceTarget.scrapeLatestNews(),
-            timestamp: new Date().toISOString(),
-        };
-    }
+     @Get('yahoofinance')
+     async yahooFinance(): Promise<any> {
+         this.logger.log(`Requested to scrape Yahoo Finance`);
+         return await this.yahooFinanceTarget.scrapeLatestNews();
+     }
 }

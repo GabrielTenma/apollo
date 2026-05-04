@@ -1,10 +1,27 @@
-import { Module } from '@nestjs/common';
+import { Module, Provider } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
+import { APP_INTERCEPTOR, APP_FILTER } from '@nestjs/core';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ScraperModule } from './scraper/scraper.module';
 import { OpenRouterModule } from './openrouter/openrouter.module';
 import { TelegramModule } from './telegram/telegram.module';
+import { TransformInterceptor } from './common/interceptors/transform.interceptor';
+import { HttpExceptionFilter } from './common/filters/http-exception.filter';
+
+const interceptors: Provider[] = [
+  {
+    provide: APP_INTERCEPTOR,
+    useClass: TransformInterceptor,
+  },
+];
+
+const filters: Provider[] = [
+  {
+    provide: APP_FILTER,
+    useClass: HttpExceptionFilter,
+  },
+];
 
 @Module({
   imports: [
@@ -17,6 +34,6 @@ import { TelegramModule } from './telegram/telegram.module';
     TelegramModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, ...interceptors, ...filters],
 })
 export class AppModule {}

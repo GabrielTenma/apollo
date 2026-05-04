@@ -5,7 +5,6 @@ import {
   ChatCompletionResponse,
   OpenRouterModel,
 } from './interfaces/openrouter.interface';
-import { ApiResponse } from '../common/utils/response.util';
 
 /**
  * Controller for OpenRouter AI operations.
@@ -36,15 +35,10 @@ export class OpenRouterController {
   @Post('chat')
   async createChatCompletion(
     @Body() options: ChatCompletionOptions,
-  ): Promise<ApiResponse> {
+  ): Promise<any> {
     this.logger.log(`Chat completion request with model: ${options.model}`);
     try {
-      const result = await this.openRouterService.createChatCompletion(options);
-      return {
-        success: true,
-        data: result,
-        timestamp: new Date().toISOString(),
-      };
+      return await this.openRouterService.createChatCompletion(options);
     } catch (error) {
       this.logger.error('Chat completion failed:', error);
       throw error;
@@ -59,15 +53,10 @@ export class OpenRouterController {
    * GET /openrouter/models
    */
   @Get('models')
-  async listModels(): Promise<ApiResponse> {
+  async listModels(): Promise<any> {
     this.logger.log('Listing available models');
     try {
-      const models = await this.openRouterService.listModels();
-      return {
-        success: true,
-        data: models,
-        timestamp: new Date().toISOString(),
-      };
+      return await this.openRouterService.listModels();
     } catch (error) {
       this.logger.error('Failed to list models:', error);
       throw error;
@@ -94,7 +83,7 @@ export class OpenRouterController {
     @Body('prompt') prompt: string,
     @Body('model') model?: string,
     @Body('systemPrompt') systemPrompt?: string,
-  ): Promise<ApiResponse> {
+  ): Promise<any> {
     this.logger.log(`Simple chat request: ${prompt.substring(0, 50)}...`);
     try {
       const response = await this.openRouterService.chat(
@@ -102,11 +91,7 @@ export class OpenRouterController {
         model,
         systemPrompt,
       );
-      return {
-        success: true,
-        data: { response },
-        timestamp: new Date().toISOString(),
-      };
+      return { response };
     } catch (error) {
       this.logger.error('Simple chat failed:', error);
       throw error;
@@ -118,11 +103,7 @@ export class OpenRouterController {
    * @returns Health status
    */
   @Get('health')
-  async healthCheck(): Promise<ApiResponse> {
-    return {
-      success: true,
-      data: { status: 'ok', service: 'openrouter' },
-      timestamp: new Date().toISOString(),
-    };
+  async healthCheck(): Promise<any> {
+    return { status: 'ok', service: 'openrouter' };
   }
 }

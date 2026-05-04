@@ -3,6 +3,7 @@ import { ScraperService } from './scraper.service';
 import { ScraperController } from './scraper.controller';
 import { FinancialJuiceTarget } from './target/financialjuice.target';
 import { CoinmarketCapTarget } from './target/coinmarketcap.target';
+import { YahooFinanceTarget } from './target/yahoofinance.target';
 
 /**
  * Module for Playwright-based web scraping functionality.
@@ -15,8 +16,8 @@ import { CoinmarketCapTarget } from './target/coinmarketcap.target';
  */
 @Global()
 @Module({
-  providers: [ScraperService, FinancialJuiceTarget, CoinmarketCapTarget],
+  providers: [ScraperService, FinancialJuiceTarget, CoinmarketCapTarget, YahooFinanceTarget],
   controllers: [ScraperController],
-  exports: [ScraperService, FinancialJuiceTarget, CoinmarketCapTarget],
+  exports: [ScraperService, FinancialJuiceTarget, CoinmarketCapTarget, YahooFinanceTarget],
 })
 export class ScraperModule {}
