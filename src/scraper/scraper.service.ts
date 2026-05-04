@@ -93,7 +93,7 @@ export class ScraperService {
 
       // Perform click
       if (options.pageLocatorPerformClick) {
-        await page.locator('#mainFeed').click();
+        await page.locator(options.pageLocatorPerformClick).click();
       }
 
       // Perform click by coordinate
@@ -103,6 +103,34 @@ export class ScraperService {
           options.pageLocatorPerformClickCoordinate.x,
           options.pageLocatorPerformClickCoordinate.y,
           { button: "left", clickCount: 1, delay: 0 });
+      }
+
+      // Custom page evaluate
+      if (options.addPageEvaluate) {
+        await Promise.all(options.addPageEvaluate.map(async (value) => {
+          await page.evaluate(value)
+        }))
+      }
+
+      // Perform auto scroll
+      if (options.pageLocatorPerformAutoScroll) {
+        await page.evaluate(async () => {
+          await new Promise<void>((resolve) => {
+            let totalHeight = 0;
+            let distance = 100;
+            let timer = setInterval(() => {
+              let scrollHeight = document.body.scrollHeight;
+              window.scrollBy(0, distance);
+              totalHeight += distance;
+
+              if (totalHeight >= scrollHeight) {
+                clearInterval(timer);
+                resolve();
+              }
+
+            }, 100);
+          })
+        })
       }
 
       // Wait for specific selector if provided

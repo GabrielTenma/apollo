@@ -21,6 +21,7 @@
   },
   "dependencies": {
     "@nestjs/common": "^9.0.0",
+    "@nestjs/config": "^2.3.4",
     "@nestjs/core": "^9.0.0",
     "@nestjs/passport": "^11.0.5",
     "@nestjs/platform-express": "^9.0.0",
@@ -28,7 +29,9 @@
     "passport": "^0.7.0",
     "passport-jwt": "^4.0.1",
     "reflect-metadata": "^0.1.13",
-    "rxjs": "^7.2.0"
+    "rxjs": "^7.2.0",
+    "webpack": "^5.106.2",
+    "webpack-cli": "^7.0.2"
   },
   "devDependencies": {
     "@nestjs/cli": "^9.0.0",

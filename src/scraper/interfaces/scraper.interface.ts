@@ -1,3 +1,5 @@
+import { PageFunction } from "node_modules/playwright-core/types/structs";
+
 /**
  * Interface for scrape options
  */
@@ -18,6 +20,8 @@ export interface ScrapeOptions {
   handlePopupClose?: boolean;
   pageLocatorPerformClick?: string;
   pageLocatorPerformClickCoordinate?: {x: number, y: number}
+  pageLocatorPerformAutoScroll?: boolean;
+  addPageEvaluate?: Array<PageFunction<void, any>>;
   addStyleHidePopup?: boolean
 }
 
@@ -56,15 +60,4 @@ export interface ExtractConfig {
     attribute?: string;
   };
   custom?: Record<string, ElementSelector>;
-}
-
-/**
- * FinancialJuice - Interface for structured data NewsItem
- */
-export interface NewsItem {
-  id: string;
-  title: string;
-  link: string;
-  time: string;
-  tags: string[];
 }

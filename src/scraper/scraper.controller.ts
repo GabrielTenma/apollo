@@ -6,19 +6,21 @@ import {
 } from './interfaces/scraper.interface';
 import { ApiResponse } from '../common/utils/response.util';
 import { FinancialJuiceTarget } from './target/financialjuice.target';
+import { CoinmarketCapTarget } from './target/coinmarketcap.target';
 
 /**
  * Controller for web scraping operations.
  * Provides endpoints for single page scraping, multiple page scraping,
  * and structured data extraction using Playwright.
  */
-@Controller('scraper')
+@Controller('/api/v1/scraper')
 export class ScraperController {
     private readonly logger = new Logger(ScraperController.name);
 
     constructor(
         private readonly scraperService: ScraperService,
-        private readonly financialJuiceTarget: FinancialJuiceTarget
+        private readonly financialJuiceTarget: FinancialJuiceTarget,
+        private readonly coinmarketCapTarget: CoinmarketCapTarget
     ) { }
 
     /**
@@ -183,6 +185,20 @@ export class ScraperController {
         return {
             success: true,
             data: await this.financialJuiceTarget.scrapeLatestNews(),
+            timestamp: new Date().toISOString(),
+        };
+    }
+
+    /**
+     * CoinmarketCap endpoint for get latest price
+     * @returns Coins
+     */
+    @Get('coinmarketcap')
+    async coinmarketCap(): Promise<ApiResponse> {
+        this.logger.log(`Requested to scrape CoinmarketCap`);
+        return {
+            success: true,
+            data: await this.coinmarketCapTarget.scrapeLatestPrice(),
             timestamp: new Date().toISOString(),
         };
     }

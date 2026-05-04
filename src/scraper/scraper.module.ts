@@ -2,6 +2,7 @@ import { Module, Global } from '@nestjs/common';
 import { ScraperService } from './scraper.service';
 import { ScraperController } from './scraper.controller';
 import { FinancialJuiceTarget } from './target/financialjuice.target';
+import { CoinmarketCapTarget } from './target/coinmarketcap.target';
 
 /**
  * Module for Playwright-based web scraping functionality.
@@ -14,8 +15,8 @@ import { FinancialJuiceTarget } from './target/financialjuice.target';
  */
 @Global()
 @Module({
-  providers: [ScraperService, FinancialJuiceTarget],
+  providers: [ScraperService, FinancialJuiceTarget, CoinmarketCapTarget],
   controllers: [ScraperController],
-  exports: [ScraperService, FinancialJuiceTarget],
+  exports: [ScraperService, FinancialJuiceTarget, CoinmarketCapTarget],
 })
 export class ScraperModule {}
