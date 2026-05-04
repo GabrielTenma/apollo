@@ -6,6 +6,8 @@ import { TransformInterceptor } from './interceptors/transform.interceptor';
 import { LoggingInterceptor } from './interceptors/logging.interceptor';
 import { HttpExceptionFilter } from './filters/http-exception.filter';
 import { RoutineService } from './routines/services/routine.service';
+import { ScraperRoutineService } from './routines/services/scraper-routine.service';
+import { RoutineConfigModule } from './routines/config/routine.config.module';
 
 /**
  * Global module that aggregates and exports shared cross-cutting concerns
@@ -21,8 +23,11 @@ import { RoutineService } from './routines/services/routine.service';
  */
 @Global()
 @Module({
+  imports: [RoutineConfigModule],
   providers: [
     // Guards: Applied globally in order (JWT authentication first, then Roles authorization)
+    JwtAuthGuard,
+    RolesGuard,
     {
       provide: APP_GUARD,
       useClass: JwtAuthGuard,
@@ -32,6 +37,8 @@ import { RoutineService } from './routines/services/routine.service';
       useClass: RolesGuard,
     },
     // Interceptors: Applied globally to all routes
+    TransformInterceptor,
+    LoggingInterceptor,
     {
       provide: APP_INTERCEPTOR,
       useClass: TransformInterceptor,
@@ -41,12 +48,14 @@ import { RoutineService } from './routines/services/routine.service';
       useClass: LoggingInterceptor,
     },
     // Filters: Applied globally to all routes
+    HttpExceptionFilter,
     {
       provide: APP_FILTER,
       useClass: HttpExceptionFilter,
     },
     // Routine Service: For executing configurable routines
     RoutineService,
+    ScraperRoutineService,
   ],
   exports: [
     // Export the classes so they can be injected or used explicitly if needed
@@ -56,6 +65,7 @@ import { RoutineService } from './routines/services/routine.service';
     LoggingInterceptor,
     HttpExceptionFilter,
     RoutineService,
+    ScraperRoutineService,
   ],
 })
 export class CommonModule {}

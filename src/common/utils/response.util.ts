@@ -21,7 +21,7 @@ export interface ApiResponse<T = unknown> {
 export const successResponse = <T>(
   data?: T,
   message?: string,
-  statusCode = 200,
+  statusCode?: number,
   correlationId?: string,
 ): ApiResponse<T> => ({
   success: true,
@@ -29,7 +29,7 @@ export const successResponse = <T>(
   message,
   correlation_id: correlationId || crypto.randomUUID(),
   timestamp: new Date().toISOString(),
-  statusCode,
+  statusCode: statusCode || 200,
 });
 
 /**

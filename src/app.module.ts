@@ -3,6 +3,7 @@ import { ConfigModule } from '@nestjs/config';
 import { APP_INTERCEPTOR, APP_FILTER } from '@nestjs/core';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { CommonModule } from './common/common.module';
 import { ScraperModule } from './scraper/scraper.module';
 import { OpenRouterModule } from './openrouter/openrouter.module';
 import { TelegramModule } from './telegram/telegram.module';
@@ -29,6 +30,7 @@ const filters: Provider[] = [
       isGlobal: true,
       envFilePath: '.env',
     }),
+    CommonModule,
     ScraperModule,
     OpenRouterModule,
     TelegramModule,

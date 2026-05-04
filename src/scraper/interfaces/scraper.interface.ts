@@ -23,7 +23,7 @@ export interface ScrapeOptions {
   pageLocatorPerformClickCoordinate?: {x: number, y: number}
   pageLocatorPerformAutoScroll?: boolean;
   addPageEvaluate?: Array<PageFunction<void, any>>;
-  addStyleHidePopup?: boolean
+  addStyleHidePopup?: boolean | string
 }
 
 /**

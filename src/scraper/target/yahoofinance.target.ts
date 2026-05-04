@@ -21,24 +21,24 @@ export interface YahooNewsItem {
 export class YahooFinanceTarget {
     constructor(private readonly scraperService: ScraperService) { }
 
-    /**
-     * Collect latest Yahoo Finance news
-     * until the dynamic news stream appears.
-     */
-    async scrapeLatestNews(): Promise<YahooNewsItem[]> {
-        const url = 'https://finance.yahoo.com/news/';
-
-        const options: ScrapeOptions = {
-            url,
+    getOptions(): ScrapeOptions {
+        return {
+            url: 'https://finance.yahoo.com/news/',
             waitForSelector: 'div.news-stream ul.stream-items li.stream-item.story-item',
             timeout: 30000,
             addStyleHidePopup: true,
             pageLocatorPerformAutoScroll: true,
             bypassCSP: true
         };
+    }
 
+    /**
+     * Collect latest Yahoo Finance news
+     * until the dynamic news stream appears.
+     */
+    async scrapeLatestNews(): Promise<YahooNewsItem[]> {
         // Call ScraperService (assume return { url, content: string })
-        const result = await this.scraperService.scrape(options);
+        const result = await this.scraperService.scrape(this.getOptions());
 
         if (!result.content) {
             throw new Error('Scraping gagal: konten HTML tidak tersedia');
@@ -52,7 +52,7 @@ export class YahooFinanceTarget {
     /**
      * Parse HTML and extract news item from ul.stream-items
      */
-    private parseNewsItems(html: string): YahooNewsItem[] {
+    parseNewsItems(html: string): YahooNewsItem[] {
         const $ = cheerio.load(html);
         const items: YahooNewsItem[] = [];
 

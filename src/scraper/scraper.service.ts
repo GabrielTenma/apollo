@@ -42,17 +42,14 @@ export class ScraperService {
     const context = await browser.newContext({
       userAgent: options.userAgent || "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36",
       extraHTTPHeaders: options.headers,
-      bypassCSP: options.bypassCSP || false
+      bypassCSP: options.bypassCSP || false,
+      viewport: { width: 1920, height: 1080 }
     });
 
     // Set cookies if provided
     if (options.cookies && options.cookies.length > 0) {
       await context.addCookies(options.cookies);
     }
-
-    await browser.newContext({
-      viewport: { width: 1920, height: 1080 }
-    });
 
     return context;
   }
@@ -89,7 +86,7 @@ export class ScraperService {
 
       // Add style hide popup
       if (options.addStyleHidePopup) {
-        await page.addStyleTag({ content: '#popup-id { display: none !important; }' });
+        await page.addStyleTag({ content: options.addStyleHidePopup === true ? '#popup-id { display: none !important; }' : options.addStyleHidePopup as string });
       }
 
       // Perform click
@@ -108,9 +105,9 @@ export class ScraperService {
 
       // Custom page evaluate
       if (options.addPageEvaluate) {
-        await Promise.all(options.addPageEvaluate.map(async (value) => {
-          await page.evaluate(value)
-        }))
+        for (const fn of options.addPageEvaluate) {
+          await page.evaluate(fn);
+        }
       }
 
       // Perform auto scroll
@@ -121,17 +118,15 @@ export class ScraperService {
             let distance = 100;
             let timer = setInterval(() => {
               let scrollHeight = document.body.scrollHeight;
-              window.scrollBy(0, distance);
               totalHeight += distance;
 
               if (totalHeight >= scrollHeight) {
                 clearInterval(timer);
                 resolve();
               }
-
             }, 100);
-          })
-        })
+          });
+        });
       }
 
       // Wait for specific selector if provided
@@ -265,32 +260,80 @@ export class ScraperService {
   }
 
   /**
-   * Scrapes multiple pages concurrently
-   * @param urls - Array of URLs to scrape
-   * @param options - Common scrape options (can be overridden per URL)
+   * Scrapes multiple pages concurrently with advanced options
+   * @param options - Array of ScrapeOptions objects, each with potentially different configurations
    * @param concurrency - Number of concurrent scrapes (default: 3)
+   * @param continueOnError - Whether to continue scraping other URLs on error (default: true)
+   * @param maxRetries - Maximum number of retries per URL on failure (default: 0)
    * @returns Array of scrape results
+   * 
+   * @example
+   * // Each option can have completely different configurations
+   * const results = await scraperService.scrapeMultiple([
+   *   { 
+   *     url: 'https://example1.com',
+   *     waitForSelector: '.content',
+   *     screenshot: true,
+   *     pageLocatorPerformClick: '#load-more'
+   *   },
+   *   { 
+   *     url: 'https://example2.com',
+   *     handlePopupClose: true,
+   *     timeout: 60000,
+   *     addStyleHidePopup: '#modal { display: none; }'
+   *   },
+   *   { 
+   *     url: 'https://example3.com',
+   *     pageLocatorPerformAutoScroll: true,
+   *     waitForSelector: '.items',
+   *     screenshot: true,
+   *     screenshotPath: 'custom-name.png'
+   *   }
+   * ], 2, true, 3);
    */
   async scrapeMultiple(
-    urls: string[],
-    options?: Omit<ScrapeOptions, 'url'>,
+    options: ScrapeOptions[],
     concurrency = 3,
+    continueOnError = true,
+    maxRetries = 0,
   ): Promise<ScrapeResult[]> {
     const results: ScrapeResult[] = [];
-    const chunks: string[][] = [];
 
-    // Split URLs into chunks for concurrency control
-    for (let i = 0; i < urls.length; i += concurrency) {
-      chunks.push(urls.slice(i, i + concurrency));
-    }
-
-    for (const chunk of chunks) {
-      const promises = chunk.map((url) =>
-        this.scrape({ ...options, url }).catch((error) => {
-          this.logger.error(`Failed to scrape ${url}:`, error);
+    // Process URLs in chunks for concurrency control
+    for (let i = 0; i < options.length; i += concurrency) {
+      const chunk = options.slice(i, i + concurrency);
+      
+      const promises = chunk.map(async (scrapeOptions) => {
+        // Validate that URL is present
+        if (!scrapeOptions.url) {
+          this.logger.error('URL is required for each scrape option');
           return null;
-        }),
-      );
+        }
+
+        let lastError: Error | null = null;
+        
+        // Retry logic with exponential backoff
+        for (let attempt = 0; attempt <= maxRetries; attempt++) {
+          try {
+            const result = await this.scrape(scrapeOptions);
+            return result;
+          } catch (error) {
+            lastError = error as Error;
+            
+            if (attempt < maxRetries) {
+              this.logger.warn(`Retrying ${scrapeOptions.url} (attempt ${attempt + 1}/${maxRetries + 1})`);
+              await new Promise(resolve => setTimeout(resolve, 1000 * Math.pow(2, attempt))); // Exponential backoff: 1s, 2s, 4s...
+            }
+          }
+        }
+        
+        if (!continueOnError) {
+          throw lastError;
+        }
+        
+        this.logger.error(`Failed to scrape ${scrapeOptions.url} after ${maxRetries + 1} attempts:`, lastError);
+        return null;
+      });
 
       const chunkResults = await Promise.all(promises);
       results.push(...chunkResults.filter((r): r is ScrapeResult => r !== null));

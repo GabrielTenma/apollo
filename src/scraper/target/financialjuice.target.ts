@@ -7,11 +7,11 @@ import * as cheerio from 'cheerio';
  * FinancialJuice - Interface for structured data NewsItem
  */
 export interface NewsItem {
-  id: string;
-  title: string;
-  link: string;
-  time: string;
-  tags: string[];
+    id: string;
+    title: string;
+    link: string;
+    time: string;
+    tags: string[];
 }
 
 /**
@@ -21,24 +21,24 @@ export interface NewsItem {
 export class FinancialJuiceTarget {
     constructor(private readonly scraperService: ScraperService) { }
 
+    getOptions(): ScrapeOptions {
+        return {
+            url: 'https://live.financialjuice.com/home',
+            waitForSelector: '#mainFeed',
+            timeout: 35000,
+            pageLocatorPerformClickCoordinate: { x: 24, y: 19 },
+            addStyleHidePopup: true
+        };
+    }
+
     /**
      * Collect FinancialJuice latest news
      * until dynamic element #mainFeed shows.
      */
     async scrapeLatestNews(): Promise<NewsItem[]> {
-        const url = 'https://www.financialjuice.com/home';
-
-        const options: ScrapeOptions = {
-            url,
-            waitForSelector: '#mainFeed',
-            timeout: 35000,
-            pageLocatorPerformClickCoordinate: {x: 24, y: 19},
-            addStyleHidePopup: true
-        };
-
         // Call ScraperService (return assume { url, content: string })
-        const result = await this.scraperService.scrape(options);
-  
+        const result = await this.scraperService.scrape(this.getOptions());
+
         if (!result.content) {
             throw new Error('Scraping gagal: konten HTML tidak tersedia');
         }
@@ -51,7 +51,7 @@ export class FinancialJuiceTarget {
     /**
      * Parse HTML and extract item news dari #mainFeed
      */
-    private parseNewsItems(html: string): NewsItem[] {
+    parseNewsItems(html: string): NewsItem[] {
         const $ = cheerio.load(html);
         const items: NewsItem[] = [];
 

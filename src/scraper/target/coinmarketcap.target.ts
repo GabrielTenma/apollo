@@ -6,7 +6,7 @@ import * as cheerio from 'cheerio';
 /**
  * CoinmarketCap - Interface for structured data CoinData
  */
-interface CoinData {
+export interface CoinData {
     rank: string;
     name: string;
     symbol: string;
@@ -26,23 +26,24 @@ interface CoinData {
 export class CoinmarketCapTarget {
     constructor(private readonly scraperService: ScraperService) { }
 
-    /**
-     * Collect CoinmarketCap latest price
-     * until dynamic element cmc-table shows.
-     */
-    async scrapeLatestPrice(): Promise<CoinData[]> {
-        const url = 'https://coinmarketcap.com/';
-
-        const options: ScrapeOptions = {
-            url,
+    // Options configuration
+    getOptions(): ScrapeOptions{
+        return {
+            url: 'https://coinmarketcap.com/',
             waitForSelector: 'table.cmc-table tbody tr',
             timeout: 35000,
             pageLocatorPerformAutoScroll: true,
             addStyleHidePopup: true,
         };
+    }
 
+    /**
+     * Collect CoinmarketCap latest price
+     * until dynamic element cmc-table shows.
+     */
+    async scrapeLatestPrice(): Promise<CoinData[]> {
         // Call ScraperService (return assume { url, content: string })
-        const result = await this.scraperService.scrape(options);
+        const result = await this.scraperService.scrape(this.getOptions());
 
         if (!result.content) {
             throw new Error('Scraping gagal: konten HTML tidak tersedia');
@@ -53,7 +54,7 @@ export class CoinmarketCapTarget {
         return priceList;
     }
 
-    private parsePriceList(html: string): CoinData[] {
+    parsePriceList(html: string): CoinData[] {
         const $ = cheerio.load(html);
         const coins: CoinData[] = [];
 

@@ -28,12 +28,28 @@ export class TransformInterceptor implements NestInterceptor {
       crypto.randomUUID();
     
     return next.handle().pipe(
-      map((data) => ({
-        success: true,
-        data,
-        correlation_id: correlationId,
-        timestamp: new Date().toISOString(),
-      })),
+      map((data) => {
+        // Check if data is already in standard format (has success property)
+        // to avoid double-wrapping
+        if (data && typeof data === 'object' && 'success' in data) {
+          // Already wrapped, just ensure correlation_id is present
+          if (!('correlation_id' in data)) {
+            data.correlation_id = correlationId;
+          }
+          if (!('timestamp' in data)) {
+            data.timestamp = new Date().toISOString();
+          }
+          return data;
+        }
+        
+        // Wrap with standard format
+        return {
+          success: true,
+          data,
+          correlation_id: correlationId,
+          timestamp: new Date().toISOString(),
+        };
+      }),
     );
   }
 }

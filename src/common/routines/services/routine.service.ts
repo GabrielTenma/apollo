@@ -1,21 +1,41 @@
-import { Injectable, Logger, OnModuleDestroy } from '@nestjs/common';
-import { routineConfig } from '../config/routine.config';
+import { Injectable, Logger, OnModuleDestroy, Inject } from '@nestjs/common';
+import { ROUTINE_CONFIG, RoutineConfig } from '../config/routine.config.module';
+import { RoutineExecutionMode } from '../config/routine.config';
 
 /**
  * Service for executing routines based on configuration.
  * Can be enabled/disabled via environment variables.
  * Each routine can have its own individual interval.
+ * Supports different execution modes to control overlapping executions.
  */
 @Injectable()
 export class RoutineService implements OnModuleDestroy {
   private readonly logger = new Logger(RoutineService.name);
   private readonly intervals = new Map<string, NodeJS.Timeout>();
+  private readonly runningRoutines = new Map<string, boolean>();
+  private readonly abortControllers = new Map<string, AbortController>();
+
+  constructor(@Inject(ROUTINE_CONFIG) private readonly config: RoutineConfig) {}
 
   /**
    * Check if routine execution is enabled globally
    */
   isEnabled(): boolean {
-    return routineConfig.enabled;
+    return this.config.enabled;
+  }
+
+  /**
+   * Get the execution mode for routines
+   */
+  private getExecutionMode(): RoutineExecutionMode {
+    return this.config.executionMode || 'wait';
+  }
+
+  /**
+   * Check if a routine is currently running
+   */
+  isRoutineRunning(routineName: string): boolean {
+    return this.runningRoutines.get(routineName) || false;
   }
 
   /**
@@ -29,6 +49,15 @@ export class RoutineService implements OnModuleDestroy {
       return;
     }
 
+    // Check if routine is already running (for skip mode)
+    if (this.getExecutionMode() === 'skip' && this.isRoutineRunning(routineName)) {
+      this.logger.warn(`Routine "${routineName}" is still running, skipping this execution`);
+      return;
+    }
+
+    // Mark routine as running
+    this.runningRoutines.set(routineName, true);
+
     try {
       this.logger.log(`Executing routine: ${routineName}`);
       await routineFn();
@@ -36,6 +65,9 @@ export class RoutineService implements OnModuleDestroy {
     } catch (error: any) {
       this.logger.error(`Routine "${routineName}" failed: ${error.message}`, error.stack);
       throw error;
+    } finally {
+      // Mark routine as not running
+      this.runningRoutines.set(routineName, false);
     }
   }
 
@@ -59,14 +91,52 @@ export class RoutineService implements OnModuleDestroy {
     // Clear existing interval if any
     this.stopRoutine(routineName);
 
-    this.logger.log(`Starting routine "${routineName}" with interval ${intervalMs}ms`);
+    const executionMode = this.getExecutionMode();
+    this.logger.log(`Starting routine "${routineName}" with interval ${intervalMs}ms (mode: ${executionMode})`);
 
-    const intervalId = setInterval(async () => {
-      await this.executeRoutine(routineName, routineFn);
-    }, intervalMs);
+    if (executionMode === 'overlap') {
+      // Original behavior - allow overlapping executions
+      const intervalId = setInterval(async () => {
+        await this.executeRoutine(routineName, routineFn);
+      }, intervalMs);
+      this.intervals.set(routineName, intervalId);
+      return intervalId;
+    } else if (executionMode === 'skip') {
+      // Skip mode - check if running before executing
+      const intervalId = setInterval(async () => {
+        await this.executeRoutine(routineName, routineFn);
+      }, intervalMs);
+      this.intervals.set(routineName, intervalId);
+      return intervalId;
+    } else {
+      // Wait mode (default) - wait for completion before next execution
+      // Use recursive setTimeout instead of setInterval
+      let isActive = true;
 
-    this.intervals.set(routineName, intervalId);
-    return intervalId;
+      const executeAndSchedule = async () => {
+        if (!isActive) return;
+
+        try {
+          await this.executeRoutine(routineName, routineFn);
+        } catch (error) {
+          // Error already logged in executeRoutine
+        } finally {
+          // Schedule next execution after completion
+          if (isActive) {
+            const timeoutId = setTimeout(executeAndSchedule, intervalMs);
+            this.intervals.set(routineName, timeoutId);
+          }
+        }
+      };
+
+      // Start the first execution
+      const initialTimeoutId = setTimeout(executeAndSchedule, 0);
+      this.intervals.set(routineName, initialTimeoutId);
+
+      // Return a wrapper that allows stopping
+      const wrapperInterval = { unref: () => { isActive = false; } } as NodeJS.Timeout;
+      return wrapperInterval;
+    }
   }
 
   /**
@@ -77,7 +147,9 @@ export class RoutineService implements OnModuleDestroy {
     const intervalId = this.intervals.get(routineName);
     if (intervalId) {
       clearInterval(intervalId);
+      clearTimeout(intervalId);
       this.intervals.delete(routineName);
+      this.runningRoutines.delete(routineName);
       this.logger.log(`Stopped routine: ${routineName}`);
     }
   }
@@ -88,9 +160,11 @@ export class RoutineService implements OnModuleDestroy {
   stopAllRoutines(): void {
     for (const [name, intervalId] of this.intervals.entries()) {
       clearInterval(intervalId);
+      clearTimeout(intervalId);
       this.logger.log(`Stopped routine: ${name}`);
     }
     this.intervals.clear();
+    this.runningRoutines.clear();
   }
 
   /**
@@ -98,6 +172,15 @@ export class RoutineService implements OnModuleDestroy {
    */
   getRunningRoutines(): string[] {
     return Array.from(this.intervals.keys());
+  }
+
+  /**
+   * Get all currently executing routine names
+   */
+  getCurrentlyExecutingRoutines(): string[] {
+    return Array.from(this.runningRoutines.entries())
+      .filter(([_, isRunning]) => isRunning)
+      .map(([name, _]) => name);
   }
 
   /**
