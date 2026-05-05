@@ -32,8 +32,10 @@ export class CoinmarketCapTarget {
             url: 'https://coinmarketcap.com/',
             waitForSelector: 'table.cmc-table tbody tr',
             timeout: 35000,
-            pageLocatorPerformAutoScroll: true,
+            pageLocatorPerformAutoScroll: false,
             addStyleHidePopup: true,
+            addPageEvaluateLazyScroll: false,
+            addPageEvaluate: [(() => window.scrollTo(0, document.body.scrollHeight))]
         };
     }
 

@@ -6,8 +6,9 @@ import { TransformInterceptor } from './interceptors/transform.interceptor';
 import { LoggingInterceptor } from './interceptors/logging.interceptor';
 import { HttpExceptionFilter } from './filters/http-exception.filter';
 import { RoutineService } from './routines/services/routine.service';
-import { ScraperRoutineService } from './routines/services/scraper-routine.service';
 import { RoutineConfigModule } from './routines/config/routine.config.module';
+import { ScraperRoutineService } from 'src/scraper/routines/scraper-routine.service';
+import { OpenrouterRoutineService } from 'src/openrouter/routines/openrouter-routine.service';
 
 /**
  * Global module that aggregates and exports shared cross-cutting concerns
@@ -56,6 +57,7 @@ import { RoutineConfigModule } from './routines/config/routine.config.module';
     // Routine Service: For executing configurable routines
     RoutineService,
     ScraperRoutineService,
+    OpenrouterRoutineService
   ],
   exports: [
     // Export the classes so they can be injected or used explicitly if needed
@@ -66,6 +68,7 @@ import { RoutineConfigModule } from './routines/config/routine.config.module';
     HttpExceptionFilter,
     RoutineService,
     ScraperRoutineService,
+    OpenrouterRoutineService,
   ],
 })
 export class CommonModule {}

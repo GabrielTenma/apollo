@@ -4,11 +4,14 @@ import { APP_INTERCEPTOR, APP_FILTER } from '@nestjs/core';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { CommonModule } from './common/common.module';
+import { AuthModule } from './auth/auth.module';
 import { ScraperModule } from './scraper/scraper.module';
 import { OpenRouterModule } from './openrouter/openrouter.module';
 import { TelegramModule } from './telegram/telegram.module';
 import { TransformInterceptor } from './common/interceptors/transform.interceptor';
 import { HttpExceptionFilter } from './common/filters/http-exception.filter';
+import { openRouterConfig } from './openrouter/config/openrouter.config';
+import { telegramConfig } from './telegram/config/telegram.config';
 
 const interceptors: Provider[] = [
   {
@@ -29,8 +32,10 @@ const filters: Provider[] = [
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: '.env',
+      load: [openRouterConfig, telegramConfig],
     }),
     CommonModule,
+    AuthModule,
     ScraperModule,
     OpenRouterModule,
     TelegramModule,

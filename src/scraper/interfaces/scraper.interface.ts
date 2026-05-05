@@ -20,9 +20,10 @@ export interface ScrapeOptions {
   screenshotPath?: string;
   handlePopupClose?: boolean;
   pageLocatorPerformClick?: string;
-  pageLocatorPerformClickCoordinate?: {x: number, y: number}
+  pageLocatorPerformClickCoordinate?: {x: number, y: number, isLoop: boolean}
   pageLocatorPerformAutoScroll?: boolean;
   addPageEvaluate?: Array<PageFunction<void, any>>;
+  addPageEvaluateLazyScroll?: boolean;
   addStyleHidePopup?: boolean | string
 }
 

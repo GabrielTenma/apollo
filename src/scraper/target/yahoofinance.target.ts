@@ -27,8 +27,10 @@ export class YahooFinanceTarget {
             waitForSelector: 'div.news-stream ul.stream-items li.stream-item.story-item',
             timeout: 30000,
             addStyleHidePopup: true,
-            pageLocatorPerformAutoScroll: true,
-            bypassCSP: true
+            pageLocatorPerformAutoScroll: false,
+            bypassCSP: true,
+            addPageEvaluateLazyScroll: false,
+            addPageEvaluate: [(() => window.scrollTo(0, document.body.scrollHeight))]
         };
     }
 

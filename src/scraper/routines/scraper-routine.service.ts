@@ -1,11 +1,11 @@
 import { Inject, Injectable, Logger, OnModuleInit } from '@nestjs/common';
-import { RoutineService } from './routine.service';
 import { APP_CONSTANTS, AppConstants } from 'src/constants/app.constants';
 import { CoinmarketCapTarget } from 'src/scraper/target/coinmarketcap.target';
 import { YahooFinanceTarget } from 'src/scraper/target/yahoofinance.target';
 import { FinancialJuiceTarget } from 'src/scraper/target/financialjuice.target';
 import { ScraperService } from 'src/scraper/scraper.service';
 import { ScrapeOptions } from 'src/scraper/interfaces/scraper.interface';
+import { RoutineService } from 'src/common/routines/services/routine.service';
 
 @Injectable()
 export class ScraperRoutineService implements OnModuleInit {
@@ -18,7 +18,7 @@ export class ScraperRoutineService implements OnModuleInit {
     private readonly financialJuiceTarget: FinancialJuiceTarget,
     private readonly scraperService: ScraperService,
     @Inject(APP_CONSTANTS) private readonly constants: AppConstants,
-  ) {}
+  ) { }
 
   onModuleInit() {
     // Only set up routines if globally enabled
@@ -32,31 +32,21 @@ export class ScraperRoutineService implements OnModuleInit {
       'scraper-routine',
       async () => {
         this.logger.log('Scraper collector routine executed');
-        
+
         const scrapedContentStore = this.constants.scrapedContentStore;
 
-        // // collect data (await async operations)
-        // const coinmarketCapResult = await this.coinMarketCapTarget.scrapeLatestPrice();
-        // const yahooFinanceResult = await this.yahooFinanceTarget.scrapeLatestNews();
-        // const financialJuiceResult = await this.financialJuiceTarget.scrapeLatestNews();
-
-        // // storing data with TTL (600000 ms = 10 minutes)
-        // coinmarketCapStore.set('content', coinmarketCapResult, 600000);
-        // yahooFinanceStore.set('content', yahooFinanceResult, 600000);
-        // financialJuiceStore.set('content', financialJuiceResult, 600000);
-
-        // new method
+        // multiple scrape
         const scrapeOptions: ScrapeOptions[] = [
-            this.coinMarketCapTarget.getOptions(), 
-            this.yahooFinanceTarget.getOptions(),
-            this.financialJuiceTarget.getOptions()
+          this.coinMarketCapTarget.getOptions(),
+          this.yahooFinanceTarget.getOptions(),
+          this.financialJuiceTarget.getOptions()
         ]
-        let scrapeAllResult = await this.scraperService.scrapeMultiple(scrapeOptions, 1, true, 1);
-        scrapedContentStore.set('coinmarketcap', this.coinMarketCapTarget.parsePriceList(scrapeAllResult[0].content));
-        scrapedContentStore.set('yahoofinance', this.yahooFinanceTarget.parseNewsItems(scrapeAllResult[1].content));
+        let scrapeAllResult = await this.scraperService.scrapeMultiple(scrapeOptions, 1, true, 0);
+        scrapedContentStore.set('coinmarketcap', this.coinMarketCapTarget.parsePriceList(scrapeAllResult[0].content || ''));
+        scrapedContentStore.set('yahoofinance', this.yahooFinanceTarget.parseNewsItems(scrapeAllResult[1].content || ''));
         scrapedContentStore.set('financialjuice', this.financialJuiceTarget.parseNewsItems(scrapeAllResult[2].content || ''));
         this.logger.log(`scrape routine done ${scrapeAllResult.length}`)
-    },
+      },
       20000, // 600,000 ms = 10 minutes - individual interval for this routine
     );
 

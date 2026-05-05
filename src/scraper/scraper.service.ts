@@ -96,11 +96,17 @@ export class ScraperService {
 
       // Perform click by coordinate
       if (options.pageLocatorPerformClickCoordinate) {
-        await page.waitForTimeout(3000);
-        await page.mouse.click(
-          options.pageLocatorPerformClickCoordinate.x,
-          options.pageLocatorPerformClickCoordinate.y,
-          { button: "left", clickCount: 1, delay: 0 });
+        let toggle = true;
+        do {
+          await page.waitForTimeout(3000);
+          await page.mouse.click(
+            options.pageLocatorPerformClickCoordinate.x,
+            options.pageLocatorPerformClickCoordinate.y,
+            { button: "left", clickCount: 1, delay: 0 });
+          if (!options.pageLocatorPerformClickCoordinate.isLoop) {
+            toggle = false;
+          }
+        } while (toggle)
       }
 
       // Custom page evaluate
@@ -127,6 +133,19 @@ export class ScraperService {
             }, 100);
           });
         });
+      }
+
+      // Perform auto scroll - lazy load page type
+      if (options.addPageEvaluateLazyScroll) {
+        let previousHeight;
+        while (true) {
+          previousHeight = await page.evaluate('document.body.scrollHeight');
+          await page.evaluate('window.scrollTo(0, document.body.scrollHeight)');
+          // Wait for new content to load
+          await page.waitForTimeout(2000);
+          let currentHeight = await page.evaluate('document.body.scrollHeight');
+          if (currentHeight === previousHeight) break; // Stop if height didn't change
+        }
       }
 
       // Wait for specific selector if provided
@@ -298,11 +317,12 @@ export class ScraperService {
     maxRetries = 0,
   ): Promise<ScrapeResult[]> {
     const results: ScrapeResult[] = [];
+    const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
     // Process URLs in chunks for concurrency control
     for (let i = 0; i < options.length; i += concurrency) {
       const chunk = options.slice(i, i + concurrency);
-      
+
       const promises = chunk.map(async (scrapeOptions) => {
         // Validate that URL is present
         if (!scrapeOptions.url) {
@@ -311,7 +331,7 @@ export class ScraperService {
         }
 
         let lastError: Error | null = null;
-        
+
         // Retry logic with exponential backoff
         for (let attempt = 0; attempt <= maxRetries; attempt++) {
           try {
@@ -319,18 +339,18 @@ export class ScraperService {
             return result;
           } catch (error) {
             lastError = error as Error;
-            
+
             if (attempt < maxRetries) {
               this.logger.warn(`Retrying ${scrapeOptions.url} (attempt ${attempt + 1}/${maxRetries + 1})`);
               await new Promise(resolve => setTimeout(resolve, 1000 * Math.pow(2, attempt))); // Exponential backoff: 1s, 2s, 4s...
             }
           }
         }
-        
+
         if (!continueOnError) {
           throw lastError;
         }
-        
+
         this.logger.error(`Failed to scrape ${scrapeOptions.url} after ${maxRetries + 1} attempts:`, lastError);
         return null;
       });

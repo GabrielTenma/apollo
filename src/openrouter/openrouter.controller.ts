@@ -5,6 +5,8 @@ import {
   ChatCompletionResponse,
   OpenRouterModel,
 } from './interfaces/openrouter.interface';
+import { Public } from 'src/common/decorators/public.decorator';
+import { Roles } from 'src/common/decorators/roles.decorator';
 
 /**
  * Controller for OpenRouter AI operations.
@@ -33,6 +35,7 @@ export class OpenRouterController {
    * }
    */
   @Post('chat')
+  @Roles('admin', 'moderator')
   async createChatCompletion(
     @Body() options: ChatCompletionOptions,
   ): Promise<any> {
@@ -53,6 +56,7 @@ export class OpenRouterController {
    * GET /openrouter/models
    */
   @Get('models')
+  @Roles('admin', 'moderator')
   async listModels(): Promise<any> {
     this.logger.log('Listing available models');
     try {
@@ -79,6 +83,7 @@ export class OpenRouterController {
    * }
    */
   @Post('simple-chat')
+  @Roles('admin', 'moderator')
   async simpleChat(
     @Body('prompt') prompt: string,
     @Body('model') model?: string,
@@ -102,6 +107,7 @@ export class OpenRouterController {
    * Health check endpoint for the OpenRouter service
    * @returns Health status
    */
+  @Public()
   @Get('health')
   async healthCheck(): Promise<any> {
     return { status: 'ok', service: 'openrouter' };

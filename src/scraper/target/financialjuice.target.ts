@@ -26,8 +26,10 @@ export class FinancialJuiceTarget {
             url: 'https://live.financialjuice.com/home',
             waitForSelector: '#mainFeed',
             timeout: 35000,
-            pageLocatorPerformClickCoordinate: { x: 24, y: 19 },
-            addStyleHidePopup: true
+            pageLocatorPerformClickCoordinate: { x: 24, y: 19, isLoop: false},
+            addStyleHidePopup: true,
+            addPageEvaluateLazyScroll: false,
+            addPageEvaluate: [(() => window.scrollTo(0, document.body.scrollHeight))]
         };
     }
 
