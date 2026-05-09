@@ -8,8 +8,8 @@ import { ApiResponse, errorResponse, successResponse } from '../common/utils/res
 import { FinancialJuiceTarget, NewsItem } from './target/financialjuice.target';
 import { CoinData, CoinmarketCapTarget } from './target/coinmarketcap.target';
 import { YahooFinanceTarget, YahooNewsItem } from './target/yahoofinance.target';
-import { APP_CONSTANTS, appConstants, AppConstants } from 'src/constants/app.constants';
-import { Public } from 'src/common/decorators/public.decorator';
+import { Public } from '../common/decorators/public.decorator';
+import { APP_CONSTANTS, appConstants, AppConstants } from '../constants/app.constants';
 
 /**
  * Controller for web scraping operations.

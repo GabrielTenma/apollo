@@ -1,11 +1,11 @@
 import { Inject, Injectable, Logger, OnModuleInit } from '@nestjs/common';
-import { APP_CONSTANTS, AppConstants } from 'src/constants/app.constants';
-import { CoinmarketCapTarget } from 'src/scraper/target/coinmarketcap.target';
-import { YahooFinanceTarget } from 'src/scraper/target/yahoofinance.target';
-import { FinancialJuiceTarget } from 'src/scraper/target/financialjuice.target';
-import { ScraperService } from 'src/scraper/scraper.service';
-import { ScrapeOptions } from 'src/scraper/interfaces/scraper.interface';
-import { RoutineService } from 'src/common/routines/services/routine.service';
+import { RoutineService } from '../../common/routines/services/routine.service';
+import { CoinmarketCapTarget } from '../target/coinmarketcap.target';
+import { YahooFinanceTarget } from '../target/yahoofinance.target';
+import { FinancialJuiceTarget } from '../target/financialjuice.target';
+import { ScraperService } from '../scraper.service';
+import { APP_CONSTANTS, AppConstants } from '../../constants/app.constants';
+import { ScrapeOptions } from '../interfaces/scraper.interface';
 
 @Injectable()
 export class ScraperRoutineService implements OnModuleInit {

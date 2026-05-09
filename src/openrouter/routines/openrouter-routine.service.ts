@@ -1,21 +1,20 @@
 import { Inject, Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { RoutineService } from '../../common/routines/services/routine.service';
-import { APP_CONSTANTS, AppConstants } from '../../constants/app.constants';
+import { APP_CONSTANTS, appConstants, AppConstants } from '../../constants/app.constants';
+import { FinancialAgentService } from '../agents/financial.agent';
 
 
 @Injectable()
 export class OpenrouterRoutineService implements OnModuleInit {
   private readonly logger = new Logger(OpenrouterRoutineService.name);
-
+  private routineTime: number = 20000;
   constructor(
     private readonly routineService: RoutineService,
+    private readonly financialAgentService: FinancialAgentService,
     @Inject(APP_CONSTANTS) private readonly constants: AppConstants,
-  ) {}
+  ) { }
 
   onModuleInit() {
-    // this routine not used yet.
-    return;
-
     // Only set up routines if globally enabled
     if (!this.routineService.isEnabled()) {
       this.logger.log('Routines are disabled globally, skipping setup');
@@ -28,9 +27,29 @@ export class OpenrouterRoutineService implements OnModuleInit {
       async () => {
         this.logger.log('Scraper collector routine executed');
         
+        // fill value
+        let financialJuice = appConstants.scrapedContentStore.get('financialjuice');
+        let yahooFinance = appConstants.scrapedContentStore.get('yahoofinance');
+        let coinmarketCap = appConstants.scrapedContentStore.get('coinmarketcap');
+        let completionPrev = appConstants.scrapedContentStore.get('completion-previous')
+
+        let isHasCompletionPrev = (completionPrev != undefined)
+        let isStoreHasContents = (financialJuice != undefined) && (yahooFinance != undefined) && (coinmarketCap != undefined);
         
-    },
-      600000, // 600,000 ms = 10 minutes - individual interval for this routine
+        // execute by condition
+        if (isStoreHasContents) {
+          let chatCompletion = await this.financialAgentService.queryChat(JSON.stringify(financialJuice), JSON.stringify(yahooFinance), JSON.stringify(coinmarketCap))
+          appConstants.scrapedContentStore.set('completion', chatCompletion);
+          appConstants.scrapedContentStore.set('completion-previous', isHasCompletionPrev ? completionPrev : chatCompletion);
+          this.routineTime = 100000;
+        } else {
+          this.logger.log(
+            `Not ready yet! skipped.`,
+          );
+          this.routineTime = 20000;
+        }
+      },
+      this.routineTime, // 600,000 ms = 10 minutes - individual interval for this routine
     );
 
     this.logger.log(

@@ -148,6 +148,7 @@ export class OpenRouterService {
       messages,
     });
 
-    return response.choices[0]?.message?.content || '';
+    const content = response.choices[0]?.message?.content || '';
+    return content.replace(/\n/g, '\n');
   }
 }

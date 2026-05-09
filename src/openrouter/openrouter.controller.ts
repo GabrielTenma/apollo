@@ -1,12 +1,15 @@
-import { Controller, Post, Body, Get, Logger } from '@nestjs/common';
+import { Controller, Post, Body, Get, Logger, Inject } from '@nestjs/common';
 import { OpenRouterService } from './openrouter.service';
 import {
   ChatCompletionOptions,
   ChatCompletionResponse,
   OpenRouterModel,
 } from './interfaces/openrouter.interface';
-import { Public } from 'src/common/decorators/public.decorator';
-import { Roles } from 'src/common/decorators/roles.decorator';
+import { Roles } from '../common/decorators/roles.decorator';
+import { Public } from '../common/decorators/public.decorator';
+import { APP_CONSTANTS, AppConstants, appConstants } from '../constants/app.constants';
+import { successResponse } from '../common/utils/response.util';
+import { FinancialAgentService } from './agents/financial.agent';
 
 /**
  * Controller for OpenRouter AI operations.
@@ -17,7 +20,11 @@ import { Roles } from 'src/common/decorators/roles.decorator';
 export class OpenRouterController {
   private readonly logger = new Logger(OpenRouterController.name);
 
-  constructor(private readonly openRouterService: OpenRouterService) {}
+  constructor(
+    private readonly openRouterService: OpenRouterService,
+    private readonly financialAgentService: FinancialAgentService,
+    @Inject(APP_CONSTANTS) private readonly constants: AppConstants,
+  ) { }
 
   /**
    * Creates a chat completion
@@ -111,5 +118,38 @@ export class OpenRouterController {
   @Get('health')
   async healthCheck(): Promise<any> {
     return { status: 'ok', service: 'openrouter' };
+  }
+
+  @Public()
+  @Get('completion')
+  async completion(): Promise<any> {
+    this.logger.log(`Requested to get routine completion`);
+
+    type Content = {
+      name: string;
+      value: any;
+    };
+    let content: Content[] = [];
+
+    // latest
+    const contentLatest = appConstants.scrapedContentStore.get('completion')
+    if (contentLatest != undefined) {
+      content.push({
+        name: 'latest',
+        value: contentLatest
+      })
+    }
+
+    // old
+    const contentPrevious = appConstants.scrapedContentStore.get('completion-previous')
+    if ((contentPrevious != undefined) && (contentPrevious != contentLatest)) {
+      content.push({
+        name: 'previous',
+        value: contentPrevious
+      })
+    }
+    return content.length === 0 ?
+      successResponse(undefined, "on process routine", 202) :
+      successResponse(content);
   }
 }
