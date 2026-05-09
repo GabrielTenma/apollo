@@ -1,6 +1,7 @@
 import { Inject, Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { RoutineService } from '../../common/routines/services/routine.service';
-import { APP_CONSTANTS, AppConstants } from 'src/constants/app.constants';
+import { APP_CONSTANTS, AppConstants } from '../../constants/app.constants';
+
 
 @Injectable()
 export class OpenrouterRoutineService implements OnModuleInit {
@@ -12,6 +13,9 @@ export class OpenrouterRoutineService implements OnModuleInit {
   ) {}
 
   onModuleInit() {
+    // this routine not used yet.
+    return;
+
     // Only set up routines if globally enabled
     if (!this.routineService.isEnabled()) {
       this.logger.log('Routines are disabled globally, skipping setup');

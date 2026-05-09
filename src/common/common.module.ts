@@ -6,10 +6,9 @@ import { TransformInterceptor } from './interceptors/transform.interceptor';
 import { LoggingInterceptor } from './interceptors/logging.interceptor';
 import { HttpExceptionFilter } from './filters/http-exception.filter';
 import { RoutineService } from './routines/services/routine.service';
-import { RoutineConfigModule } from './routines/config/routine.config.module';
-import { ScraperRoutineService } from 'src/scraper/routines/scraper-routine.service';
-import { OpenrouterRoutineService } from 'src/openrouter/routines/openrouter-routine.service';
-
+import { RoutineConfigModule } from './routines/config/routine.config.module';  
+import { OpenrouterRoutineService } from '../openrouter/routines/openrouter-routine.service';
+import { ScraperRoutineService } from '../scraper/routines/scraper-routine.service';
 /**
  * Global module that aggregates and exports shared cross-cutting concerns
  * such as authentication guards, role-based authorization, response transformers,

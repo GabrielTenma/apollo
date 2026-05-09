@@ -1,4 +1,5 @@
-import { MemoryKeyStore } from "src/common/utils";
+import { MemoryKeyStore } from "../common/utils/memory-key-store.util";
+
 
 export const APP_CONSTANTS = 'APP_CONSTANTS';
 

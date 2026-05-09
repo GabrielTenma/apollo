@@ -30,9 +30,10 @@ export class LoggingInterceptor implements NestInterceptor {
       tap(() => {
         const duration = Date.now() - now;
         const statusCode = response.statusCode;
-        this.logger.log(
-          `${method} ${url} ${statusCode} - ${duration}ms`,
-        );
+        const message = `${method} ${url} ${statusCode} - ${duration}ms`;
+        
+        // Log to console
+        this.logger.log(message);
       }),
     );
   }
