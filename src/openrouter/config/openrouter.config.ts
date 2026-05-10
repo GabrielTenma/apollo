@@ -5,11 +5,8 @@
 export const openRouterConfig = () => ({
   openrouter: {
     apiKey: process.env.OPENROUTER_API_KEY || '',
-    baseUrl:
-      process.env.OPENROUTER_BASE_URL || 'https://openrouter.ai/api/v1',
-    defaultModel:
-      process.env.OPENROUTER_DEFAULT_MODEL ||
-      'openrouter/free',
+    baseUrl: process.env.OPENROUTER_BASE_URL || 'https://openrouter.ai/api/v1',
+    defaultModel: process.env.OPENROUTER_DEFAULT_MODEL || 'openrouter/free',
     timeout: parseInt(process.env.OPENROUTER_TIMEOUT || '30000', 10),
   },
 });

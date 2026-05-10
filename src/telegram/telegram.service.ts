@@ -36,9 +36,7 @@ export class TelegramService {
    * @param options - Send message options
    * @returns Sent message object
    */
-  async sendMessage(
-    options: SendMessageOptions,
-  ): Promise<TelegramMessage> {
+  async sendMessage(options: SendMessageOptions): Promise<TelegramMessage> {
     try {
       this.logger.log(`Sending message to chat: ${options.chat_id}`);
 
@@ -81,10 +79,7 @@ export class TelegramService {
    * @param secretToken - Secret token for webhook verification
    * @returns Success status
    */
-  async setWebhook(
-    url: string,
-    secretToken?: string,
-  ): Promise<boolean> {
+  async setWebhook(url: string, secretToken?: string): Promise<boolean> {
     try {
       this.logger.log(`Setting webhook to: ${url}`);
 
@@ -154,7 +149,10 @@ export class TelegramService {
    * @param params - Method parameters
    * @returns API response
    */
-  private async makeRequest<T>(method: string, params?: Record<string, unknown>): Promise<T> {
+  private async makeRequest<T>(
+    method: string,
+    params?: Record<string, unknown>,
+  ): Promise<T> {
     const url = `${this.baseUrl}/${method}`;
 
     const body = params

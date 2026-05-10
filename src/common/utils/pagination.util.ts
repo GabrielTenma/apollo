@@ -30,10 +30,7 @@ export const normalizePagination = (
   maxLimit = 100,
 ): PaginationResult => {
   const validPage = Math.max(1, Math.floor(page || 1));
-  const validLimit = Math.min(
-    maxLimit,
-    Math.max(1, Math.floor(limit || 10)),
-  );
+  const validLimit = Math.min(maxLimit, Math.max(1, Math.floor(limit || 10)));
 
   return {
     take: validLimit,

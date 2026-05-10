@@ -43,15 +43,25 @@ export class RoutineService implements OnModuleDestroy {
    * @param routineName - Name of the routine for logging purposes
    * @param routineFn - The routine function to execute
    */
-  async executeRoutine(routineName: string, routineFn: () => Promise<void>): Promise<void> {
+  async executeRoutine(
+    routineName: string,
+    routineFn: () => Promise<void>,
+  ): Promise<void> {
     if (!this.isEnabled()) {
-      this.logger.debug(`Routine "${routineName}" is disabled, skipping execution`);
+      this.logger.debug(
+        `Routine "${routineName}" is disabled, skipping execution`,
+      );
       return;
     }
 
     // Check if routine is already running (for skip mode)
-    if (this.getExecutionMode() === 'skip' && this.isRoutineRunning(routineName)) {
-      this.logger.warn(`Routine "${routineName}" is still running, skipping this execution`);
+    if (
+      this.getExecutionMode() === 'skip' &&
+      this.isRoutineRunning(routineName)
+    ) {
+      this.logger.warn(
+        `Routine "${routineName}" is still running, skipping this execution`,
+      );
       return;
     }
 
@@ -63,7 +73,10 @@ export class RoutineService implements OnModuleDestroy {
       await routineFn();
       this.logger.log(`Routine "${routineName}" completed successfully`);
     } catch (error: any) {
-      this.logger.error(`Routine "${routineName}" failed: ${error.message}`, error.stack);
+      this.logger.error(
+        `Routine "${routineName}" failed: ${error.message}`,
+        error.stack,
+      );
       throw error;
     } finally {
       // Mark routine as not running
@@ -78,21 +91,29 @@ export class RoutineService implements OnModuleDestroy {
    * @param intervalMs - Individual interval in milliseconds for this routine
    * @returns The interval ID
    */
-  startRoutine(routineName: string, routineFn: () => Promise<void>, intervalMs: number): NodeJS.Timeout {
+  startRoutine(
+    routineName: string,
+    routineFn: () => Promise<void>,
+    intervalMs: number,
+  ): NodeJS.Timeout {
     if (!this.isEnabled()) {
       this.logger.debug(`Routine "${routineName}" is disabled, not starting`);
       return null;
     }
 
     if (intervalMs <= 0) {
-      throw new Error(`Invalid interval for routine "${routineName}": must be positive`);
+      throw new Error(
+        `Invalid interval for routine "${routineName}": must be positive`,
+      );
     }
 
     // Clear existing interval if any
     this.stopRoutine(routineName);
 
     const executionMode = this.getExecutionMode();
-    this.logger.log(`Starting routine "${routineName}" with interval ${intervalMs}ms (mode: ${executionMode})`);
+    this.logger.log(
+      `Starting routine "${routineName}" with interval ${intervalMs}ms (mode: ${executionMode})`,
+    );
 
     if (executionMode === 'overlap') {
       // Original behavior - allow overlapping executions
@@ -134,7 +155,11 @@ export class RoutineService implements OnModuleDestroy {
       this.intervals.set(routineName, initialTimeoutId);
 
       // Return a wrapper that allows stopping
-      const wrapperInterval = { unref: () => { isActive = false; } } as NodeJS.Timeout;
+      const wrapperInterval = {
+        unref: () => {
+          isActive = false;
+        },
+      } as NodeJS.Timeout;
       return wrapperInterval;
     }
   }

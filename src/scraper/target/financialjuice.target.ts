@@ -7,11 +7,11 @@ import * as cheerio from 'cheerio';
  * FinancialJuice - Interface for structured data NewsItem
  */
 export interface NewsItem {
-    id: string;
-    title: string;
-    link: string;
-    time: string;
-    tags: string[];
+  id: string;
+  title: string;
+  link: string;
+  time: string;
+  tags: string[];
 }
 
 /**
@@ -19,79 +19,81 @@ export interface NewsItem {
  */
 @Injectable()
 export class FinancialJuiceTarget {
-    constructor(private readonly scraperService: ScraperService) { }
+  constructor(private readonly scraperService: ScraperService) {}
 
-    getOptions(): ScrapeOptions {
-        return {
-            url: 'https://live.financialjuice.com/home',
-            waitForSelector: '#mainFeed',
-            timeout: 35000,
-            pageLocatorPerformClickCoordinate: { x: 24, y: 19, isLoop: false},
-            addStyleHidePopup: true,
-            addPageEvaluateLazyScroll: false,
-            addPageEvaluate: [(() => window.scrollTo(0, document.body.scrollHeight))]
-        };
+  getOptions(): ScrapeOptions {
+    return {
+      url: 'https://live.financialjuice.com/home',
+      waitForSelector: '#mainFeed',
+      timeout: 35000,
+      pageLocatorPerformClickCoordinate: { x: 24, y: 19, isLoop: false },
+      addStyleHidePopup: true,
+      addPageEvaluateLazyScroll: false,
+      addPageEvaluate: [() => window.scrollTo(0, document.body.scrollHeight)],
+    };
+  }
+
+  /**
+   * Collect FinancialJuice latest news
+   * until dynamic element #mainFeed shows.
+   */
+  async scrapeLatestNews(): Promise<NewsItem[]> {
+    // Call ScraperService (return assume { url, content: string })
+    const result = await this.scraperService.scrape(this.getOptions());
+
+    if (!result.content) {
+      throw new Error('Scraping gagal: konten HTML tidak tersedia');
     }
 
-    /**
-     * Collect FinancialJuice latest news
-     * until dynamic element #mainFeed shows.
-     */
-    async scrapeLatestNews(): Promise<NewsItem[]> {
-        // Call ScraperService (return assume { url, content: string })
-        const result = await this.scraperService.scrape(this.getOptions());
+    // Parse HTML with Cheerio
+    const news = this.parseNewsItems(result.content);
+    return news;
+  }
 
-        if (!result.content) {
-            throw new Error('Scraping gagal: konten HTML tidak tersedia');
-        }
+  /**
+   * Parse HTML and extract item news dari #mainFeed
+   */
+  parseNewsItems(html: string): NewsItem[] {
+    const $ = cheerio.load(html);
+    const items: NewsItem[] = [];
 
-        // Parse HTML with Cheerio
-        const news = this.parseNewsItems(result.content);
-        return news;
-    }
+    $('#mainFeed .infinite-item.headline-item').each((_, element) => {
+      const $item = $(element);
 
-    /**
-     * Parse HTML and extract item news dari #mainFeed
-     */
-    parseNewsItems(html: string): NewsItem[] {
-        const $ = cheerio.load(html);
-        const items: NewsItem[] = [];
+      // Lewati item tanpa judul (biasanya iklan / placeholder)
+      const anchor = $item.find('p.headline-title a');
+      let title: string;
+      let link: string;
 
-        $('#mainFeed .infinite-item.headline-item').each((_, element) => {
-            const $item = $(element);
+      if (anchor.length > 0) {
+        title = anchor.text().trim();
+        const href = anchor.attr('href') || '';
+        link = href.startsWith('http')
+          ? href
+          : `https://www.financialjuice.com${href}`;
+      } else {
+        const span = $item.find('span.headline-title-nolink');
+        title = span.text().trim();
+        link = '';
+      }
 
-            // Lewati item tanpa judul (biasanya iklan / placeholder)
-            const anchor = $item.find('p.headline-title a');
-            let title: string;
-            let link: string;
+      if (!title) return; // ignore non-news content
 
-            if (anchor.length > 0) {
-                title = anchor.text().trim();
-                const href = anchor.attr('href') || '';
-                link = href.startsWith('http') ? href : `https://www.financialjuice.com${href}`;
-            } else {
-                const span = $item.find('span.headline-title-nolink');
-                title = span.text().trim();
-                link = '';
-            }
+      const time = $item.find('p.time').text().trim();
 
-            if (!title) return; // ignore non-news content
+      const tags: string[] = [];
+      $item.find('span.news-label').each((_, tagEl) => {
+        const tagText = $(tagEl).text().trim();
+        if (tagText) tags.push(tagText);
+      });
 
-            const time = $item.find('p.time').text().trim();
+      const id = $item.attr('data-headlineid') || '';
 
-            const tags: string[] = [];
-            $item.find('span.news-label').each((_, tagEl) => {
-                const tagText = $(tagEl).text().trim();
-                if (tagText) tags.push(tagText);
-            });
+      if (id == '0') return; // ignore promotial content
 
-            const id = $item.attr('data-headlineid') || '';
+      items.push({ id, title, link, time, tags });
+    });
 
-            if (id == "0") return; // ignore promotial content
-
-            items.push({ id, title, link, time, tags });
-        });
-
-        return items;
-    }
+    return items;
+  }
 }

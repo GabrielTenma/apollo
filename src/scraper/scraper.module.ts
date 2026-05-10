@@ -18,8 +18,18 @@ import { AppConstantsModule } from '../constants/app.module';
 @Global()
 @Module({
   imports: [AppConstantsModule],
-  providers: [ScraperService, FinancialJuiceTarget, CoinmarketCapTarget, YahooFinanceTarget],
+  providers: [
+    ScraperService,
+    FinancialJuiceTarget,
+    CoinmarketCapTarget,
+    YahooFinanceTarget,
+  ],
   controllers: [ScraperController],
-  exports: [ScraperService, FinancialJuiceTarget, CoinmarketCapTarget, YahooFinanceTarget],
+  exports: [
+    ScraperService,
+    FinancialJuiceTarget,
+    CoinmarketCapTarget,
+    YahooFinanceTarget,
+  ],
 })
 export class ScraperModule {}

@@ -7,16 +7,16 @@ import * as cheerio from 'cheerio';
  * CoinmarketCap - Interface for structured data CoinData
  */
 export interface CoinData {
-    rank: string;
-    name: string;
-    symbol: string;
-    price: string;
-    change1h: string;
-    change24h: string;
-    change7d: string;
-    marketCap: string;
-    volume24h: string;
-    circulatingSupply: string;
+  rank: string;
+  name: string;
+  symbol: string;
+  price: string;
+  change1h: string;
+  change24h: string;
+  change7d: string;
+  marketCap: string;
+  volume24h: string;
+  circulatingSupply: string;
 }
 
 /**
@@ -24,69 +24,77 @@ export interface CoinData {
  */
 @Injectable()
 export class CoinmarketCapTarget {
-    constructor(private readonly scraperService: ScraperService) { }
+  constructor(private readonly scraperService: ScraperService) {}
 
-    // Options configuration
-    getOptions(): ScrapeOptions{
-        return {
-            url: 'https://coinmarketcap.com/',
-            waitForSelector: 'table.cmc-table tbody tr',
-            timeout: 35000,
-            pageLocatorPerformAutoScroll: false,
-            addStyleHidePopup: true,
-            addPageEvaluateLazyScroll: false,
-            addPageEvaluate: [(() => window.scrollTo(0, document.body.scrollHeight))]
-        };
+  // Options configuration
+  getOptions(): ScrapeOptions {
+    return {
+      url: 'https://coinmarketcap.com/',
+      waitForSelector: 'table.cmc-table tbody tr',
+      timeout: 35000,
+      pageLocatorPerformAutoScroll: false,
+      addStyleHidePopup: true,
+      addPageEvaluateLazyScroll: false,
+      addPageEvaluate: [() => window.scrollTo(0, document.body.scrollHeight)],
+    };
+  }
+
+  /**
+   * Collect CoinmarketCap latest price
+   * until dynamic element cmc-table shows.
+   */
+  async scrapeLatestPrice(): Promise<CoinData[]> {
+    // Call ScraperService (return assume { url, content: string })
+    const result = await this.scraperService.scrape(this.getOptions());
+
+    if (!result.content) {
+      throw new Error('Scraping gagal: konten HTML tidak tersedia');
     }
 
-    /**
-     * Collect CoinmarketCap latest price
-     * until dynamic element cmc-table shows.
-     */
-    async scrapeLatestPrice(): Promise<CoinData[]> {
-        // Call ScraperService (return assume { url, content: string })
-        const result = await this.scraperService.scrape(this.getOptions());
+    // Parse HTML with Cheerio
+    const priceList = this.parsePriceList(result.content);
+    return priceList;
+  }
 
-        if (!result.content) {
-            throw new Error('Scraping gagal: konten HTML tidak tersedia');
-        }
+  parsePriceList(html: string): CoinData[] {
+    const $ = cheerio.load(html);
+    const coins: CoinData[] = [];
 
-        // Parse HTML with Cheerio
-        const priceList = this.parsePriceList(result.content);
-        return priceList;
-    }
+    $('table.cmc-table tbody tr').each((_, row) => {
+      const $row = $(row);
+      const cells = $row.find('td');
 
-    parsePriceList(html: string): CoinData[] {
-        const $ = cheerio.load(html);
-        const coins: CoinData[] = [];
+      // Pastikan baris cukup panjang (hindari baris kosong / iklan)
+      if (cells.length < 10) return;
 
-        $('table.cmc-table tbody tr').each((_, row) => {
-            const $row = $(row);
-            const cells = $row.find('td');
+      const rank = $(cells[1]).text().trim();
+      const name = $(cells[2]).find('.coin-item-name').text().trim();
+      const symbol = $(cells[2]).find('.coin-item-symbol').text().trim();
+      const price = $(cells[3]).text().trim();
+      const change1h = $(cells[4]).text().trim();
+      const change24h = $(cells[5]).text().trim();
+      const change7d = $(cells[6]).text().trim();
+      const marketCap = $(cells[7]).text().trim();
+      const volume24h = $(cells[8]).text().trim();
+      const circulatingSupply = $(cells[9]).text().trim();
 
-            // Pastikan baris cukup panjang (hindari baris kosong / iklan)
-            if (cells.length < 10) return;
-
-            const rank = $(cells[1]).text().trim();
-            const name = $(cells[2]).find('.coin-item-name').text().trim();
-            const symbol = $(cells[2]).find('.coin-item-symbol').text().trim();
-            const price = $(cells[3]).text().trim();
-            const change1h = $(cells[4]).text().trim();
-            const change24h = $(cells[5]).text().trim();
-            const change7d = $(cells[6]).text().trim();
-            const marketCap = $(cells[7]).text().trim();
-            const volume24h = $(cells[8]).text().trim();
-            const circulatingSupply = $(cells[9]).text().trim();
-
-            if (name) { // Hanya tambahkan jika ada nama (menyaring baris iklan)
-                coins.push({
-                    rank, name, symbol, price,
-                    change1h, change24h, change7d,
-                    marketCap, volume24h, circulatingSupply,
-                });
-            }
+      if (name) {
+        // Hanya tambahkan jika ada nama (menyaring baris iklan)
+        coins.push({
+          rank,
+          name,
+          symbol,
+          price,
+          change1h,
+          change24h,
+          change7d,
+          marketCap,
+          volume24h,
+          circulatingSupply,
         });
+      }
+    });
 
-        return coins;
-    }
+    return coins;
+  }
 }

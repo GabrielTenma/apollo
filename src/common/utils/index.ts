@@ -46,4 +46,8 @@ export {
 } from './string.util';
 
 // Memory Key Store utilities
-export { MemoryKeyStore, memoryKeyStore, MemoryEntry } from './memory-key-store.util';
+export {
+  MemoryKeyStore,
+  memoryKeyStore,
+  MemoryEntry,
+} from './memory-key-store.util';

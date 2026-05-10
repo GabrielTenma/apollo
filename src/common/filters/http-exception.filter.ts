@@ -42,12 +42,12 @@ export class HttpExceptionFilter implements ExceptionFilter {
       typeof message === 'object' && message !== null && 'message' in message
         ? (message as { message: string | string[] }).message
         : exception instanceof HttpException
-          ? (message as string)
-          : 'Internal server error';
+        ? (message as string)
+        : 'Internal server error';
 
     // Get or generate correlation ID
-    const correlationId = 
-      (request.headers['x-correlation-id'] as string) || 
+    const correlationId =
+      (request.headers['x-correlation-id'] as string) ||
       (request.headers['x-request-id'] as string) ||
       crypto.randomUUID();
 

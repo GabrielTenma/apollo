@@ -1,18 +1,21 @@
 import { Inject, Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { RoutineService } from '../../common/routines/services/routine.service';
-import { APP_CONSTANTS, appConstants, AppConstants } from '../../constants/app.constants';
+import {
+  APP_CONSTANTS,
+  appConstants,
+  AppConstants,
+} from '../../constants/app.constants';
 import { FinancialAgentService } from '../agents/financial.agent';
-
 
 @Injectable()
 export class OpenrouterRoutineService implements OnModuleInit {
   private readonly logger = new Logger(OpenrouterRoutineService.name);
-  private routineTime: number = 20000;
+  private routineTime = 20000;
   constructor(
     private readonly routineService: RoutineService,
     private readonly financialAgentService: FinancialAgentService,
     @Inject(APP_CONSTANTS) private readonly constants: AppConstants,
-  ) { }
+  ) {}
 
   onModuleInit() {
     // Only set up routines if globally enabled
@@ -26,18 +29,26 @@ export class OpenrouterRoutineService implements OnModuleInit {
       'openrouter-routine',
       async () => {
         this.logger.log('Scraper collector routine executed');
-        
-        // fill value
-        let financialJuice = appConstants.scrapedContentStore.get('financialjuice');
-        let yahooFinance = appConstants.scrapedContentStore.get('yahoofinance');
-        let coinmarketCap = appConstants.scrapedContentStore.get('coinmarketcap');
-        let completionPrev = appConstants.scrapedContentStore.get('completion-previous')
 
-        let isStoreHasContents = (financialJuice != undefined) && (yahooFinance != undefined) && (coinmarketCap != undefined);
-        
+        // fill value
+        const financialJuice =
+          appConstants.scrapedContentStore.get('financialjuice');
+        const yahooFinance =
+          appConstants.scrapedContentStore.get('yahoofinance');
+        const coinmarketCap =
+          appConstants.scrapedContentStore.get('coinmarketcap');
+        const completionPrev = appConstants.scrapedContentStore.get(
+          'completion-previous',
+        );
+
+        const isStoreHasContents =
+          financialJuice != undefined &&
+          yahooFinance != undefined &&
+          coinmarketCap != undefined;
+
         // execute by condition
         if (isStoreHasContents) {
-          let chatCompletion = await this.financialAgentService.queryChat({
+          const chatCompletion = await this.financialAgentService.queryChat({
             financialJuiceContent: JSON.stringify(financialJuice),
             yahooFinanceContent: JSON.stringify(yahooFinance),
             coinmarketCapContent: JSON.stringify(coinmarketCap),
@@ -45,18 +56,20 @@ export class OpenrouterRoutineService implements OnModuleInit {
             ideaWordsLength: 300,
             riskReminder: 3,
             tradeIdeas: '1-5',
-            language: 'indonesian'
-          })
+            language: 'indonesian',
+          });
           appConstants.scrapedContentStore.set('completion', chatCompletion);
 
-          let isFillCompletionPrev = (completionPrev != undefined) && (chatCompletion != completionPrev);
-          appConstants.scrapedContentStore.set('completion-previous', isFillCompletionPrev ? chatCompletion : completionPrev);
-          
+          const isFillCompletionPrev =
+            completionPrev != undefined && chatCompletion != completionPrev;
+          appConstants.scrapedContentStore.set(
+            'completion-previous',
+            isFillCompletionPrev ? chatCompletion : completionPrev,
+          );
+
           this.routineTime = 100000;
         } else {
-          this.logger.log(
-            `Not ready yet! skipped.`,
-          );
+          this.logger.log(`Not ready yet! skipped.`);
           this.routineTime = 20000;
         }
       },
@@ -64,7 +77,9 @@ export class OpenrouterRoutineService implements OnModuleInit {
     );
 
     this.logger.log(
-      `Started ${this.routineService.getRunningRoutines().length} collector routines`,
+      `Started ${
+        this.routineService.getRunningRoutines().length
+      } collector routines`,
     );
   }
 

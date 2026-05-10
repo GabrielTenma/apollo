@@ -14,7 +14,7 @@ import {
 
 @Injectable()
 export class ExampleService {
-  constructor(private readonly openRouterService: OpenRouterService) { }
+  constructor(private readonly openRouterService: OpenRouterService) {}
 
   /**
    * Example 1: Simple chat completion
@@ -36,7 +36,10 @@ export class ExampleService {
   async advancedChatExample(): Promise<void> {
     const messages: ChatMessage[] = [
       { role: 'system', content: 'You are a helpful coding assistant.' },
-      { role: 'user', content: 'Write a TypeScript function to sort an array.' },
+      {
+        role: 'user',
+        content: 'Write a TypeScript function to sort an array.',
+      },
     ];
 
     const options: ChatCompletionOptions = {

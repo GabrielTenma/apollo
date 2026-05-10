@@ -1,4 +1,9 @@
-import { Injectable, NestInterceptor, ExecutionContext, CallHandler } from '@nestjs/common';
+import {
+  Injectable,
+  NestInterceptor,
+  ExecutionContext,
+  CallHandler,
+} from '@nestjs/common';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { Request } from 'express';
@@ -20,13 +25,13 @@ export class TransformInterceptor implements NestInterceptor {
   intercept(context: ExecutionContext, next: CallHandler): Observable<unknown> {
     const ctx = context.switchToHttp();
     const request = ctx.getRequest<Request>();
-    
+
     // Get or generate correlation ID
-    const correlationId = 
-      (request.headers['x-correlation-id'] as string) || 
+    const correlationId =
+      (request.headers['x-correlation-id'] as string) ||
       (request.headers['x-request-id'] as string) ||
       crypto.randomUUID();
-    
+
     return next.handle().pipe(
       map((data) => {
         // Check if data is already in standard format (has success property)
@@ -41,7 +46,7 @@ export class TransformInterceptor implements NestInterceptor {
           }
           return data;
         }
-        
+
         // Wrap with standard format
         return {
           success: true,

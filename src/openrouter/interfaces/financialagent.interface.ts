@@ -1,5 +1,3 @@
-
-
 export interface PromptConfig {
   financialJuiceContent: string;
   yahooFinanceContent: string;

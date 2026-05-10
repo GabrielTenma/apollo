@@ -22,7 +22,10 @@ import { JwtStrategy } from './strategies/jwt.strategy';
           secret,
           signOptions: {
             // Default expiration - can be overridden in AuthService
-            expiresIn: configService.get<string>('JWT_ACCESS_EXPIRATION', '60m'),
+            expiresIn: configService.get<string>(
+              'JWT_ACCESS_EXPIRATION',
+              '60m',
+            ),
           },
         };
       },

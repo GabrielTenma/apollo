@@ -51,7 +51,9 @@ export class ExampleRoutineService implements OnModuleInit {
     );
 
     this.logger.log(
-      `Started ${this.routineService.getRunningRoutines().length} example routines`,
+      `Started ${
+        this.routineService.getRunningRoutines().length
+      } example routines`,
     );
   }
 
@@ -77,8 +79,11 @@ export class ExampleRoutineService implements OnModuleInit {
    * Manually trigger a routine (useful for testing or manual execution)
    */
   async runHeartbeatManually(): Promise<void> {
-    await this.routineService.executeRoutine('example-heartbeat-manual', async () => {
-      this.logger.log('Manual heartbeat executed');
-    });
+    await this.routineService.executeRoutine(
+      'example-heartbeat-manual',
+      async () => {
+        this.logger.log('Manual heartbeat executed');
+      },
+    );
   }
 }

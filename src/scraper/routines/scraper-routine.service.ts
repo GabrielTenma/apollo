@@ -18,7 +18,7 @@ export class ScraperRoutineService implements OnModuleInit {
     private readonly financialJuiceTarget: FinancialJuiceTarget,
     private readonly scraperService: ScraperService,
     @Inject(APP_CONSTANTS) private readonly constants: AppConstants,
-  ) { }
+  ) {}
 
   onModuleInit() {
     // Only set up routines if globally enabled
@@ -39,20 +39,42 @@ export class ScraperRoutineService implements OnModuleInit {
         const scrapeOptions: ScrapeOptions[] = [
           this.coinMarketCapTarget.getOptions(),
           this.yahooFinanceTarget.getOptions(),
-          this.financialJuiceTarget.getOptions()
-        ]
-        let scrapeAllResult = await this.scraperService.scrapeMultiple(scrapeOptions, 1, true, 0);
-        scrapedContentStore.set('coinmarketcap', this.coinMarketCapTarget.parsePriceList(scrapeAllResult[0].content || ''));
-        scrapedContentStore.set('yahoofinance', this.yahooFinanceTarget.parseNewsItems(scrapeAllResult[1].content || ''));
-        scrapedContentStore.set('financialjuice', this.financialJuiceTarget.parseNewsItems(scrapeAllResult[2].content || ''));
-        
-        this.logger.log(`scrape routine done ${scrapeAllResult.length}`)
+          this.financialJuiceTarget.getOptions(),
+        ];
+        const scrapeAllResult = await this.scraperService.scrapeMultiple(
+          scrapeOptions,
+          1,
+          true,
+          0,
+        );
+        scrapedContentStore.set(
+          'coinmarketcap',
+          this.coinMarketCapTarget.parsePriceList(
+            scrapeAllResult[0].content || '',
+          ),
+        );
+        scrapedContentStore.set(
+          'yahoofinance',
+          this.yahooFinanceTarget.parseNewsItems(
+            scrapeAllResult[1].content || '',
+          ),
+        );
+        scrapedContentStore.set(
+          'financialjuice',
+          this.financialJuiceTarget.parseNewsItems(
+            scrapeAllResult[2].content || '',
+          ),
+        );
+
+        this.logger.log(`scrape routine done ${scrapeAllResult.length}`);
       },
       20000, // 600,000 ms = 10 minutes - individual interval for this routine
     );
 
     this.logger.log(
-      `Started ${this.routineService.getRunningRoutines().length} collector routines`,
+      `Started ${
+        this.routineService.getRunningRoutines().length
+      } collector routines`,
     );
   }
 

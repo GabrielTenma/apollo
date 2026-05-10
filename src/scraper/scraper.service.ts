@@ -19,13 +19,31 @@ export class ScraperService {
   private browser: Browser | null = null;
 
   /**
-   * Initializes and returns a Playwright browser instance
+   * Initializes and returns a Playwright browser instance.
+   *
+   * Additional Chromium launch arguments are used to minimise CPU and memory
+   * consumption. These flags disable GPU usage, background timers, extensions,
+   * and sandboxing (the latter is safe in most CI environments and when the
+   * host is trusted). Adjust the flags as needed for your deployment.
+   *
    * @param headless - Whether to run in headless mode (default: true)
    * @returns Browser instance
    */
   private async getBrowser(headless = true): Promise<Browser> {
     if (!this.browser) {
-      this.browser = await chromium.launch({ headless, args: ['--disable-gpu', '--disable-dev-shm-usage'] });
+      this.browser = await chromium.launch({
+        headless,
+        args: [
+          '--disable-gpu',
+          '--disable-dev-shm-usage',
+          '--disable-extensions',
+          '--disable-background-timer-throttling',
+          '--disable-backgrounding-occluded-windows',
+          '--disable-renderer-backgrounding',
+          '--no-sandbox',
+          '--disable-setuid-sandbox',
+        ],
+      });
     }
     return this.browser;
   }
@@ -41,10 +59,12 @@ export class ScraperService {
     options: ScrapeOptions,
   ): Promise<BrowserContext> {
     const context = await browser.newContext({
-      userAgent: options.userAgent || "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36",
+      userAgent:
+        options.userAgent ||
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36',
       extraHTTPHeaders: options.headers,
       bypassCSP: options.bypassCSP || false,
-      viewport: { width: 1920, height: 1080 }
+      viewport: { width: 1920, height: 1080 },
     });
 
     // Set cookies if provided
@@ -75,7 +95,7 @@ export class ScraperService {
           page.getByRole('button', { name: 'Close' }), // Locator popup
           async () => {
             await page.getByRole('button', { name: 'Close' }).click();
-          }
+          },
         );
       }
 
@@ -87,7 +107,12 @@ export class ScraperService {
 
       // Add style hide popup
       if (options.addStyleHidePopup) {
-        await page.addStyleTag({ content: options.addStyleHidePopup === true ? '#popup-id { display: none !important; }' : options.addStyleHidePopup as string });
+        await page.addStyleTag({
+          content:
+            options.addStyleHidePopup === true
+              ? '#popup-id { display: none !important; }'
+              : (options.addStyleHidePopup as string),
+        });
       }
 
       // Perform click
@@ -103,11 +128,12 @@ export class ScraperService {
           await page.mouse.click(
             options.pageLocatorPerformClickCoordinate.x,
             options.pageLocatorPerformClickCoordinate.y,
-            { button: "left", clickCount: 1, delay: 0 });
+            { button: 'left', clickCount: 1, delay: 0 },
+          );
           if (!options.pageLocatorPerformClickCoordinate.isLoop) {
             toggle = false;
           }
-        } while (toggle)
+        } while (toggle);
       }
 
       // Custom page evaluate
@@ -122,9 +148,9 @@ export class ScraperService {
         await page.evaluate(async () => {
           await new Promise<void>((resolve) => {
             let totalHeight = 0;
-            let distance = 100;
-            let timer = setInterval(() => {
-              let scrollHeight = document.body.scrollHeight;
+            const distance = 100;
+            const timer = setInterval(() => {
+              const scrollHeight = document.body.scrollHeight;
               totalHeight += distance;
 
               if (totalHeight >= scrollHeight) {
@@ -144,7 +170,9 @@ export class ScraperService {
           await page.evaluate('window.scrollTo(0, document.body.scrollHeight)');
           // Wait for new content to load
           await page.waitForTimeout(2000);
-          let currentHeight = await page.evaluate('document.body.scrollHeight');
+          const currentHeight = await page.evaluate(
+            'document.body.scrollHeight',
+          );
           if (currentHeight === previousHeight) break; // Stop if height didn't change
         }
       }
@@ -217,7 +245,8 @@ export class ScraperService {
     if (config.links) {
       const links = await page.$$eval(
         config.links.selector,
-        (elements, attr) => elements.map((el) => el.getAttribute(attr || 'href')),
+        (elements, attr) =>
+          elements.map((el) => el.getAttribute(attr || 'href')),
         config.links.attribute || 'href',
       );
       data.links = links.filter((link): link is string => link !== null);
@@ -286,23 +315,23 @@ export class ScraperService {
    * @param continueOnError - Whether to continue scraping other URLs on error (default: true)
    * @param maxRetries - Maximum number of retries per URL on failure (default: 0)
    * @returns Array of scrape results
-   * 
+   *
    * @example
    * // Each option can have completely different configurations
    * const results = await scraperService.scrapeMultiple([
-   *   { 
+   *   {
    *     url: 'https://example1.com',
    *     waitForSelector: '.content',
    *     screenshot: true,
    *     pageLocatorPerformClick: '#load-more'
    *   },
-   *   { 
+   *   {
    *     url: 'https://example2.com',
    *     handlePopupClose: true,
    *     timeout: 60000,
    *     addStyleHidePopup: '#modal { display: none; }'
    *   },
-   *   { 
+   *   {
    *     url: 'https://example3.com',
    *     pageLocatorPerformAutoScroll: true,
    *     waitForSelector: '.items',
@@ -311,62 +340,100 @@ export class ScraperService {
    *   }
    * ], 2, true, 3);
    */
+  /**
+   * Scrapes multiple pages concurrently with advanced options.
+   *
+   * The implementation now uses a lightweight semaphore to limit the number of
+   * concurrent scrapes based on the `concurrency` argument. By default the
+   * concurrency is set to half of the available CPU cores, which provides a
+   * good balance between throughput and CPU usage. The previous macOS‑specific
+   * throttling logic has been removed in favour of an optional `throttleDelayMs`
+   * parameter that can be used to introduce a configurable pause between each
+   * scrape when needed.
+   *
+   * @param options - Array of {@link ScrapeOptions} objects, each with potentially different configurations.
+   * @param concurrency - Maximum number of scrapes to run in parallel. Defaults to half of the CPU cores.
+   * @param continueOnError - Whether to continue scraping other URLs on error (default: true).
+   * @param maxRetries - Maximum number of retries per URL on failure (default: 0).
+   * @param throttleDelayMs - Optional delay (in milliseconds) to wait after each individual scrape. Useful for rate‑limiting without the heavy macOS‑only pause.
+   * @returns Array of {@link ScrapeResult} objects.
+   */
   async scrapeMultiple(
     options: ScrapeOptions[],
-    concurrency = 3,
+    concurrency = Math.max(1, Math.floor(os.cpus().length / 2)),
     continueOnError = true,
     maxRetries = 0,
+    throttleDelayMs = 0,
   ): Promise<ScrapeResult[]> {
     const results: ScrapeResult[] = [];
-    const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+    // Index shared among workers to fetch the next job
+    let nextIndex = 0;
 
-    // Process URLs in chunks for concurrency control
-    for (let i = 0; i < options.length; i += concurrency) {
-      const chunk = options.slice(i, i + concurrency);
+    // Worker function that processes options sequentially while respecting the concurrency limit
+    const worker = async () => {
+      while (true) {
+        const currentIdx = nextIndex++;
+        if (currentIdx >= options.length) {
+          break;
+        }
+        const scrapeOptions = options[currentIdx];
 
-      const promises = chunk.map(async (scrapeOptions) => {
-        // Validate that URL is present
+        // Validate URL presence
         if (!scrapeOptions.url) {
           this.logger.error('URL is required for each scrape option');
-          return null;
+          continue;
         }
 
         let lastError: Error | null = null;
-
         // Retry logic with exponential backoff
         for (let attempt = 0; attempt <= maxRetries; attempt++) {
           try {
             const result = await this.scrape(scrapeOptions);
-            return result;
+            results.push(result);
+            break; // success, exit retry loop
           } catch (error) {
             lastError = error as Error;
-
             if (attempt < maxRetries) {
-              this.logger.warn(`Retrying ${scrapeOptions.url} (attempt ${attempt + 1}/${maxRetries + 1})`);
-              await new Promise(resolve => setTimeout(resolve, 1000 * Math.pow(2, attempt))); // Exponential backoff: 1s, 2s, 4s...
+              this.logger.warn(
+                `Retrying ${scrapeOptions.url} (attempt ${attempt + 1}/${
+                  maxRetries + 1
+                })`,
+              );
+              // Exponential backoff: 1s, 2s, 4s, ...
+              await new Promise((r) =>
+                setTimeout(r, 1000 * Math.pow(2, attempt)),
+              );
             }
           }
         }
 
-        if (!continueOnError) {
+        if (!continueOnError && lastError) {
+          // Propagate the error to abort all workers
           throw lastError;
         }
 
-        this.logger.error(`Failed to scrape ${scrapeOptions.url} after ${maxRetries + 1} attempts:`, lastError);
-        return null;
-      });
-
-      const chunkResults = await Promise.all(promises);
-      results.push(...chunkResults.filter((r): r is ScrapeResult => r !== null));
-
-      // throttle when run on local mac
-        if (os.platform() == 'darwin') {
-          let interval = 10000;
-          this.logger.log(`throttled scrapeMultiple ${interval}ms platform ${os.platform}`)
-          await new Promise(r => setTimeout(r, interval));
+        if (lastError) {
+          this.logger.error(
+            `Failed to scrape ${scrapeOptions.url} after ${
+              maxRetries + 1
+            } attempts:`,
+            lastError,
+          );
         }
-    }
 
+        // Optional throttle between individual scrapes
+        if (throttleDelayMs > 0) {
+          await new Promise((r) => setTimeout(r, throttleDelayMs));
+        }
+      }
+    };
+
+    // Launch workers up to the concurrency limit
+    const workers = Array.from(
+      { length: Math.min(concurrency, options.length) },
+      () => worker(),
+    );
+    await Promise.all(workers);
     return results;
   }
 

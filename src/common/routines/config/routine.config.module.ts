@@ -25,7 +25,10 @@ export class RoutineConfigService {
   getConfig(): RoutineConfig {
     return {
       enabled: this.configService.get<string>('ROUTINE_ENABLED') === 'true',
-      executionMode: (this.configService.get<string>('ROUTINE_EXECUTION_MODE') as RoutineExecutionMode) || 'wait',
+      executionMode:
+        (this.configService.get<string>(
+          'ROUTINE_EXECUTION_MODE',
+        ) as RoutineExecutionMode) || 'wait',
     };
   }
 }
@@ -39,7 +42,8 @@ export class RoutineConfigService {
     RoutineConfigService,
     {
       provide: ROUTINE_CONFIG,
-      useFactory: (configService: RoutineConfigService) => configService.getConfig(),
+      useFactory: (configService: RoutineConfigService) =>
+        configService.getConfig(),
       inject: [RoutineConfigService],
     },
   ],

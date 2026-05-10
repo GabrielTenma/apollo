@@ -18,23 +18,20 @@ export class AuthService {
 
   /**
    * Generates a JWT access token with user roles.
-   * 
+   *
    * @param user - The user object containing id, email, and roles
    * @param expiresIn - Token expiration time (e.g., '60m', '1h', '7d')
    *                     If not provided, uses JWT_ACCESS_EXPIRATION from env
    * @returns The signed JWT token
-   * 
+   *
    * @example
    * // Time-based expiration (60 minutes)
    * const token = generateAccessToken(user, '60m');
-   * 
+   *
    * // Non-time-based (no expiration)
    * const token = generateAccessToken(user, null); // or undefined
    */
-  generateAccessToken(
-    user: UserRoles,
-    expiresIn?: string | null,
-  ): string {
+  generateAccessToken(user: UserRoles, expiresIn?: string | null): string {
     const payload: JwtPayload = {
       sub: user.id,
       email: user.email,
@@ -42,7 +39,7 @@ export class AuthService {
     };
 
     const options: { expiresIn?: string | number } = {};
-    
+
     // If expiresIn is explicitly null or undefined, token won't have expiration
     if (expiresIn !== null && expiresIn !== undefined) {
       options.expiresIn = expiresIn;
@@ -62,7 +59,7 @@ export class AuthService {
   /**
    * Generates a refresh token for token renewal.
    * Refresh tokens typically have longer expiration times.
-   * 
+   *
    * @param user - The user object
    * @param expiresIn - Refresh token expiration (default: 7d from env)
    * @returns The refresh token
@@ -83,7 +80,7 @@ export class AuthService {
 
   /**
    * Validates a refresh token and returns a new access token.
-   * 
+   *
    * @param refreshToken - The refresh token to validate
    * @returns New access token and refresh token pair
    * @throws UnauthorizedException if refresh token is invalid

@@ -1,5 +1,4 @@
-import { MemoryKeyStore } from "../common/utils/memory-key-store.util";
-
+import { MemoryKeyStore } from '../common/utils/memory-key-store.util';
 
 export const APP_CONSTANTS = 'APP_CONSTANTS';
 
@@ -13,5 +12,5 @@ export const appConstants: AppConstants = {
   appName: 'apollo',
 
   // memory key store
-  scrapedContentStore: new MemoryKeyStore()
+  scrapedContentStore: new MemoryKeyStore(),
 };

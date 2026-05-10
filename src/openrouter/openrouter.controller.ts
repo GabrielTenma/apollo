@@ -7,7 +7,11 @@ import {
 } from './interfaces/openrouter.interface';
 import { Roles } from '../common/decorators/roles.decorator';
 import { Public } from '../common/decorators/public.decorator';
-import { APP_CONSTANTS, AppConstants, appConstants } from '../constants/app.constants';
+import {
+  APP_CONSTANTS,
+  AppConstants,
+  appConstants,
+} from '../constants/app.constants';
 import { successResponse } from '../common/utils/response.util';
 import { FinancialAgentService } from './agents/financial.agent';
 
@@ -24,7 +28,7 @@ export class OpenRouterController {
     private readonly openRouterService: OpenRouterService,
     private readonly financialAgentService: FinancialAgentService,
     @Inject(APP_CONSTANTS) private readonly constants: AppConstants,
-  ) { }
+  ) {}
 
   /**
    * Creates a chat completion
@@ -129,27 +133,29 @@ export class OpenRouterController {
       name: string;
       value: any;
     };
-    let content: Content[] = [];
+    const content: Content[] = [];
 
     // latest
-    const contentLatest = appConstants.scrapedContentStore.get('completion')
+    const contentLatest = appConstants.scrapedContentStore.get('completion');
     if (contentLatest != undefined) {
       content.push({
         name: 'latest',
-        value: contentLatest
-      })
+        value: contentLatest,
+      });
     }
 
     // old
-    const contentPrevious = appConstants.scrapedContentStore.get('completion-previous')
-    if ((contentPrevious != undefined) && (contentPrevious != contentLatest)) {
+    const contentPrevious = appConstants.scrapedContentStore.get(
+      'completion-previous',
+    );
+    if (contentPrevious != undefined && contentPrevious != contentLatest) {
       content.push({
         name: 'previous',
-        value: contentPrevious
-      })
+        value: contentPrevious,
+      });
     }
-    return content.length === 0 ?
-      successResponse(undefined, "on process routine", 202) :
-      successResponse(content);
+    return content.length === 0
+      ? successResponse(undefined, 'on process routine', 202)
+      : successResponse(content);
   }
 }

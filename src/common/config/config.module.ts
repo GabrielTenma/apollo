@@ -29,7 +29,8 @@ import { CommonConfigService } from './config.service';
   providers: [
     {
       provide: CommonConfigService,
-      useFactory: (configService: ConfigService) => new CommonConfigService(configService),
+      useFactory: (configService: ConfigService) =>
+        new CommonConfigService(configService),
       inject: [ConfigService],
     },
   ],

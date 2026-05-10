@@ -70,9 +70,7 @@ export class TelegramController {
    * }
    */
   @Post('send-message')
-  async sendMessage(
-    @Body() options: SendMessageOptions,
-  ): Promise<any> {
+  async sendMessage(@Body() options: SendMessageOptions): Promise<any> {
     this.logger.log(`Send message request to chat: ${options.chat_id}`);
     try {
       return await this.telegramService.sendMessage(options);

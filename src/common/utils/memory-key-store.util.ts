@@ -182,7 +182,11 @@ export class MemoryKeyStore {
    * @param ttl - Time to live in milliseconds (optional)
    * @returns Promise resolving to the existing or newly created value
    */
-  async getOrSet<T>(key: string, factory: () => T | Promise<T>, ttl?: number): Promise<T> {
+  async getOrSet<T>(
+    key: string,
+    factory: () => T | Promise<T>,
+    ttl?: number,
+  ): Promise<T> {
     // Check if value already exists
     const existing = this.get<T>(key);
     if (existing !== undefined) {
@@ -227,7 +231,9 @@ export class MemoryKeyStore {
 
     // Check if there's a pending async operation
     if (this.pendingPromises.has(key)) {
-      throw new Error('Async factory already pending for this key. Use getOrSet() instead.');
+      throw new Error(
+        'Async factory already pending for this key. Use getOrSet() instead.',
+      );
     }
 
     const value = factory();

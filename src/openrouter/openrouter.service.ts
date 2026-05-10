@@ -28,7 +28,8 @@ export class OpenRouterService {
     this.defaultModel =
       this.configService.get<string>('openrouter.defaultModel') ||
       'google/gemini-2.0-flash-exp:free';
-    this.timeout = this.configService.get<number>('openrouter.timeout') || 30000;
+    this.timeout =
+      this.configService.get<number>('openrouter.timeout') || 30000;
 
     if (!this.apiKey) {
       this.logger.warn('OpenRouter API key not configured');

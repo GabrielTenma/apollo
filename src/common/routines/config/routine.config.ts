@@ -18,7 +18,8 @@ export interface RoutineConfig {
 
 export const routineConfig: RoutineConfig = {
   enabled: process.env.ROUTINE_ENABLED === 'true',
-  executionMode: (process.env.ROUTINE_EXECUTION_MODE as RoutineExecutionMode) || 'wait',
+  executionMode:
+    (process.env.ROUTINE_EXECUTION_MODE as RoutineExecutionMode) || 'wait',
 };
 
 /**
@@ -28,8 +29,15 @@ export function validateRoutineConfig() {
   const errors: string[] = [];
 
   const validModes = ['wait', 'skip', 'overlap'];
-  if (routineConfig.executionMode && !validModes.includes(routineConfig.executionMode)) {
-    errors.push(`Invalid ROUTINE_EXECUTION_MODE: ${routineConfig.executionMode}. Must be one of: ${validModes.join(', ')}`);
+  if (
+    routineConfig.executionMode &&
+    !validModes.includes(routineConfig.executionMode)
+  ) {
+    errors.push(
+      `Invalid ROUTINE_EXECUTION_MODE: ${
+        routineConfig.executionMode
+      }. Must be one of: ${validModes.join(', ')}`,
+    );
   }
 
   return {

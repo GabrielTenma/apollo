@@ -22,14 +22,14 @@ export class AuthController {
   /**
    * Login endpoint - validates credentials and returns JWT tokens.
    * In production, you should validate against your database.
-   * 
+   *
    * @example Request:
    * POST /auth/login
    * {
    *   "email": "admin@example.com",
    *   "password": "password123"
    * }
-   * 
+   *
    * @example Response:
    * {
    *   "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
@@ -46,9 +46,7 @@ export class AuthController {
       id: '123',
       email: loginDto.email,
       // Example roles - in production, fetch from database
-      roles: loginDto.email.includes('admin') 
-        ? ['admin', 'user'] 
-        : ['user'],
+      roles: loginDto.email.includes('admin') ? ['admin', 'user'] : ['user'],
     };
 
     // Generate tokens with 60 minutes expiration for access token
@@ -65,7 +63,7 @@ export class AuthController {
 
   /**
    * Refresh token endpoint - generates new token pair using refresh token.
-   * 
+   *
    * @example Request:
    * POST /auth/refresh
    * {
@@ -76,7 +74,7 @@ export class AuthController {
   @Post('refresh')
   async refresh(@Body() refreshDto: RefreshTokenDto) {
     const tokens = this.authService.refreshTokens(refreshDto.refreshToken);
-    
+
     return {
       ...tokens,
       tokenType: 'Bearer',
