@@ -6,7 +6,9 @@ import { TransformInterceptor } from './interceptors/transform.interceptor';
 import { LoggingInterceptor } from './interceptors/logging.interceptor';
 import { HttpExceptionFilter } from './filters/http-exception.filter';
 import { RoutineService } from './routines/services/routine.service';
-import { RoutineConfigModule } from './routines/config/routine.config.module';  
+import { RoutineConfigModule } from './routines/config/routine.config.module';
+import { ConfigModule } from './config/config.module';
+import { CommonConfigService } from './config/config.service';
 import { OpenrouterRoutineService } from '../openrouter/routines/openrouter-routine.service';
 import { ScraperRoutineService } from '../scraper/routines/scraper-routine.service';
 /**
@@ -23,7 +25,9 @@ import { ScraperRoutineService } from '../scraper/routines/scraper-routine.servi
  */
 @Global()
 @Module({
-  imports: [RoutineConfigModule],
+  // Import the routine configuration and our custom ConfigModule which provides
+  // the thread‑safe CommonConfigService.
+  imports: [RoutineConfigModule, ConfigModule],
   providers: [
     // Guards: Applied globally in order (JWT authentication first, then Roles authorization)
     JwtAuthGuard,
@@ -56,7 +60,10 @@ import { ScraperRoutineService } from '../scraper/routines/scraper-routine.servi
     // Routine Service: For executing configurable routines
     RoutineService,
     ScraperRoutineService,
-    OpenrouterRoutineService
+    OpenrouterRoutineService,
+    // Register the thread‑safe configuration service so it can be injected
+    // throughout the application.
+    CommonConfigService,
   ],
   exports: [
     // Export the classes so they can be injected or used explicitly if needed
@@ -68,6 +75,8 @@ import { ScraperRoutineService } from '../scraper/routines/scraper-routine.servi
     RoutineService,
     ScraperRoutineService,
     OpenrouterRoutineService,
+    // Export the configuration service for use in other modules.
+    CommonConfigService,
   ],
 })
 export class CommonModule {}

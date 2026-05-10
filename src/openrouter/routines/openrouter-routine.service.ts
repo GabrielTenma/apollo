@@ -33,14 +33,25 @@ export class OpenrouterRoutineService implements OnModuleInit {
         let coinmarketCap = appConstants.scrapedContentStore.get('coinmarketcap');
         let completionPrev = appConstants.scrapedContentStore.get('completion-previous')
 
-        let isHasCompletionPrev = (completionPrev != undefined)
         let isStoreHasContents = (financialJuice != undefined) && (yahooFinance != undefined) && (coinmarketCap != undefined);
         
         // execute by condition
         if (isStoreHasContents) {
-          let chatCompletion = await this.financialAgentService.queryChat(JSON.stringify(financialJuice), JSON.stringify(yahooFinance), JSON.stringify(coinmarketCap))
+          let chatCompletion = await this.financialAgentService.queryChat({
+            financialJuiceContent: JSON.stringify(financialJuice),
+            yahooFinanceContent: JSON.stringify(yahooFinance),
+            coinmarketCapContent: JSON.stringify(coinmarketCap),
+            maxTextLength: 500,
+            ideaWordsLength: 300,
+            riskReminder: 3,
+            tradeIdeas: '1-5',
+            language: 'indonesian'
+          })
           appConstants.scrapedContentStore.set('completion', chatCompletion);
-          appConstants.scrapedContentStore.set('completion-previous', isHasCompletionPrev ? completionPrev : chatCompletion);
+
+          let isFillCompletionPrev = (completionPrev != undefined) && (chatCompletion != completionPrev);
+          appConstants.scrapedContentStore.set('completion-previous', isFillCompletionPrev ? chatCompletion : completionPrev);
+          
           this.routineTime = 100000;
         } else {
           this.logger.log(

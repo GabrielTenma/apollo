@@ -6,6 +6,7 @@ import {
   ExtractConfig,
   ElementSelector,
 } from './interfaces/scraper.interface';
+import * as os from 'node:os';
 
 /**
  * Advanced Playwright scraper service for web scraping operations.
@@ -357,6 +358,13 @@ export class ScraperService {
 
       const chunkResults = await Promise.all(promises);
       results.push(...chunkResults.filter((r): r is ScrapeResult => r !== null));
+
+      // throttle when run on local mac
+        if (os.platform() == 'darwin') {
+          let interval = 10000;
+          this.logger.log(`throttled scrapeMultiple ${interval}ms platform ${os.platform}`)
+          await new Promise(r => setTimeout(r, interval));
+        }
     }
 
     return results;

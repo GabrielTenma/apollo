@@ -45,6 +45,7 @@ export class ScraperRoutineService implements OnModuleInit {
         scrapedContentStore.set('coinmarketcap', this.coinMarketCapTarget.parsePriceList(scrapeAllResult[0].content || ''));
         scrapedContentStore.set('yahoofinance', this.yahooFinanceTarget.parseNewsItems(scrapeAllResult[1].content || ''));
         scrapedContentStore.set('financialjuice', this.financialJuiceTarget.parseNewsItems(scrapeAllResult[2].content || ''));
+        
         this.logger.log(`scrape routine done ${scrapeAllResult.length}`)
       },
       20000, // 600,000 ms = 10 minutes - individual interval for this routine
