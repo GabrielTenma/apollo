@@ -15,6 +15,7 @@ export interface ScrapeOptions {
     domain: string;
     path?: string;
   }>;
+  htmlContent?: boolean;
   bypassCSP?: boolean;
   screenshot?: boolean;
   screenshotPath?: string;

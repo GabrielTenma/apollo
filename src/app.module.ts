@@ -12,6 +12,8 @@ import { TransformInterceptor } from './common/interceptors/transform.intercepto
 import { HttpExceptionFilter } from './common/filters/http-exception.filter';
 import { openRouterConfig } from './openrouter/config/openrouter.config';
 import { telegramConfig } from './telegram/config/telegram.config';
+import { supabaseConfig } from './supabase/config/supabase.config';
+import { SupabaseModule } from './supabase/supabase.module';
 
 const interceptors: Provider[] = [
   {
@@ -32,13 +34,14 @@ const filters: Provider[] = [
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: '.env',
-      load: [openRouterConfig, telegramConfig],
+      load: [openRouterConfig, telegramConfig, supabaseConfig],
     }),
     CommonModule,
     AuthModule,
     ScraperModule,
-    OpenRouterModule,
-    TelegramModule,
+      OpenRouterModule,
+      TelegramModule,
+      SupabaseModule,
   ],
   controllers: [AppController],
   providers: [AppService, ...interceptors, ...filters],
