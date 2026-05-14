@@ -3,7 +3,15 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
 import { SupabaseOrmService } from './typeorm.service';
-import { ExampleEntity } from '../../supabase/entities/example.entity';
+import { UserEntity } from '../../supabase/entities/user.entity';
+import { UserAuthProviderEntity } from '../../supabase/entities/user-auth-provider.entity';
+import { UserSessionEntity } from '../../supabase/entities/user-session.entity';
+import { TelegramBotEntity } from '../../supabase/entities/telegram-bot.entity';
+import { TelegramChatEntity } from '../../supabase/entities/telegram-chat.entity';
+import { TelegramUpdateEntity } from '../../supabase/entities/telegram-update.entity';
+import { ScrapingSourceEntity } from '../../supabase/entities/scraping-source.entity';
+import { ScrapedDataEntity } from '../../supabase/entities/scraped-data.entity';
+import { FeatureConfigEntity } from '../../supabase/entities/feature-config.entity';
 
 /**
  * Module that sets up TypeORM for Supabase's PostgreSQL database.
@@ -34,7 +42,17 @@ import { ExampleEntity } from '../../supabase/entities/example.entity';
       },
     }),
     // Register entities for injection via @InjectRepository.
-    TypeOrmModule.forFeature([ExampleEntity]),
+    TypeOrmModule.forFeature([
+      UserEntity,
+      UserAuthProviderEntity,
+      UserSessionEntity,
+      TelegramBotEntity,
+      TelegramChatEntity,
+      TelegramUpdateEntity,
+      ScrapingSourceEntity,
+      ScrapedDataEntity,
+      FeatureConfigEntity,
+    ]),
   ],
   // Export the DataSource so other modules can inject it if needed.
   providers: [
