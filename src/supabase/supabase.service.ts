@@ -36,7 +36,7 @@ export class SupabaseService {
     }
 
     for (const [name, config] of Object.entries(connections)) {
-      this.logger.warn(`Found supabase connection ${name}`)
+      this.logger.warn(`Found supabase connection ${name}`);
       if (config.url && config.key) {
         this.clients.set(name, createClient(config.url, config.key));
         if (name === 'default') {
