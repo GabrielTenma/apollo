@@ -30,7 +30,7 @@ export class SupabaseService {
   }
 
   async read(table: string, filter?: any): Promise<any> {
-    let query = this.client.from(table).select('*');
+    let query: any = this.client.from(table).select('*');
     if (filter && filter.field && filter.value !== undefined) {
       query = query.eq(filter.field, filter.value);
     }
