@@ -1,6 +1,18 @@
-import { Controller, Get, Post, Body, Param, Delete, Put, Logger } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Param,
+  Delete,
+  Put,
+  Logger,
+} from '@nestjs/common';
 import { SupabaseService } from './supabase.service';
-import { CreateRecordDto, UpdateRecordDto } from './interfaces/supabase.interface';
+import {
+  CreateRecordDto,
+  UpdateRecordDto,
+} from './interfaces/supabase.interface';
 
 /**
  * Controller for Supabase operations.
@@ -24,7 +36,10 @@ export class SupabaseController {
   }
 
   @Get('read/:table')
-  async read(@Param('table') table: string, @Body() dto: { filter?: any } = {}): Promise<any> {
+  async read(
+    @Param('table') table: string,
+    @Body() dto: { filter?: any } = {},
+  ): Promise<any> {
     this.logger.log(`Read records from ${table}`);
     return this.supabaseService.read(table, dto.filter);
   }
@@ -36,7 +51,9 @@ export class SupabaseController {
   }
 
   @Delete('delete')
-  async delete(@Body() dto: { table: string; id: string | number }): Promise<any> {
+  async delete(
+    @Body() dto: { table: string; id: string | number },
+  ): Promise<any> {
     this.logger.log(`Delete record from ${dto.table}`);
     return this.supabaseService.delete(dto.table, dto.id);
   }

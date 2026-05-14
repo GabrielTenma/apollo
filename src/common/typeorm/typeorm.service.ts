@@ -1,5 +1,11 @@
 import { Injectable, Inject } from '@nestjs/common';
-import { DataSource, Repository, EntityTarget, QueryDeepPartialEntity, DeepPartial } from 'typeorm';
+import {
+  DataSource,
+  Repository,
+  EntityTarget,
+  QueryDeepPartialEntity,
+  DeepPartial,
+} from 'typeorm';
 
 /**
  * A thin wrapper around TypeORM's DataSource that provides convenient
@@ -27,7 +33,10 @@ export class SupabaseOrmService {
   }
 
   /** Generic find one by primary key */
-  async findOne<T>(entity: EntityTarget<T>, id: number | string): Promise<T | null> {
+  async findOne<T>(
+    entity: EntityTarget<T>,
+    id: number | string,
+  ): Promise<T | null> {
     // TypeORM's findOneBy expects a where object. We assume the primary column is named "id".
     return this.getRepository(entity).findOneBy({ id } as any);
   }
@@ -40,7 +49,11 @@ export class SupabaseOrmService {
   }
 
   /** Generic update */
-  async update<T>(entity: EntityTarget<T>, id: number | string, data: QueryDeepPartialEntity<T>): Promise<T> {
+  async update<T>(
+    entity: EntityTarget<T>,
+    id: number | string,
+    data: QueryDeepPartialEntity<T>,
+  ): Promise<T> {
     const repo = this.getRepository(entity);
     await repo.update(id as any, data);
     // Return the updated entity

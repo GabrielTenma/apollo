@@ -25,7 +25,9 @@ const commonConfigService = new CommonConfigService(new ConfigService());
 export const routineConfig: RoutineConfig = {
   enabled: commonConfigService.getBoolean('ROUTINE_ENABLED') ?? false,
   executionMode:
-    (commonConfigService.get('ROUTINE_EXECUTION_MODE') as RoutineExecutionMode) || 'wait',
+    (commonConfigService.get(
+      'ROUTINE_EXECUTION_MODE',
+    ) as RoutineExecutionMode) || 'wait',
 };
 
 /**

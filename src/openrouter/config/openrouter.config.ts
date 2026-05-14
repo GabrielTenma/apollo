@@ -11,8 +11,11 @@ const commonConfigService = new CommonConfigService(new ConfigService());
 export const openRouterConfig = () => ({
   openrouter: {
     apiKey: commonConfigService.get('OPENROUTER_API_KEY') ?? '',
-    baseUrl: commonConfigService.get('OPENROUTER_BASE_URL') ?? 'https://openrouter.ai/api/v1',
-    defaultModel: commonConfigService.get('OPENROUTER_DEFAULT_MODEL') ?? 'openrouter/free',
+    baseUrl:
+      commonConfigService.get('OPENROUTER_BASE_URL') ??
+      'https://openrouter.ai/api/v1',
+    defaultModel:
+      commonConfigService.get('OPENROUTER_DEFAULT_MODEL') ?? 'openrouter/free',
     timeout: commonConfigService.getNumber('OPENROUTER_TIMEOUT', 30000),
   },
 });

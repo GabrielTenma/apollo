@@ -21,7 +21,9 @@ export class SupabaseRoutineService implements OnModuleInit {
 
   onModuleInit() {
     if (!this.routineService.isEnabled()) {
-      this.logger.log('Routines are disabled globally, skipping Supabase routine setup');
+      this.logger.log(
+        'Routines are disabled globally, skipping Supabase routine setup',
+      );
       return;
     }
 
@@ -35,6 +37,8 @@ export class SupabaseRoutineService implements OnModuleInit {
       this.intervalMs,
     );
 
-    this.logger.log(`Supabase routine started with interval ${this.intervalMs}ms`);
+    this.logger.log(
+      `Supabase routine started with interval ${this.intervalMs}ms`,
+    );
   }
 }
