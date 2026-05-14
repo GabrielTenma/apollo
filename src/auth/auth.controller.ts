@@ -1,4 +1,5 @@
 import { Controller, Post, Body, UseGuards, Get, Req } from '@nestjs/common';
+import { Request } from 'express';
 import { AuthService } from './auth.service';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { Roles } from '../common/decorators/roles.decorator';
@@ -15,13 +16,19 @@ class RefreshTokenDto {
   refreshToken: string;
 }
 
+class CreateUserDto {
+  email: string;
+  password: string;
+  role: string;
+  creationKey: string;
+}
+
 @Controller('/api/v1/auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   /**
    * Login endpoint - validates credentials and returns JWT tokens.
-   * In production, you should validate against your database.
    *
    * @example Request:
    * POST /auth/login
@@ -37,25 +44,44 @@ export class AuthController {
    *   "expiresIn": 3600
    * }
    */
+  /**
+   * Create user endpoint - creates a new user with the provided credentials.
+   * Requires a valid creation key from config.
+   *
+   * @example Request:
+   * POST /auth/create-user
+   * {
+   *   "email": "user@example.com",
+   *   "password": "password123",
+   *   "role": "user",
+   *   "creationKey": "secret-key-from-config"
+   * }
+   */
+  @Public()
+  @Post('create-user')
+  async createUser(@Body() createUserDto: CreateUserDto) {
+    await this.authService.createUser(
+      createUserDto.email,
+      createUserDto.password,
+      createUserDto.role,
+      createUserDto.creationKey,
+    );
+
+    return { message: 'User created successfully' };
+  }
+
   @Public()
   @Post('login')
-  async login(@Body() loginDto: LoginDto) {
-    // TODO: Replace with actual user validation from database
-    // This is a mock implementation - in production, validate credentials against DB
-    const mockUser = {
-      id: '123',
-      email: loginDto.email,
-      // Example roles - in production, fetch from database
-      roles: loginDto.email.includes('admin') ? ['admin', 'user'] : ['user'],
-    };
-
-    // Generate tokens with 60 minutes expiration for access token
-    const accessToken = this.authService.generateAccessToken(mockUser, '60m');
-    const refreshToken = this.authService.generateRefreshToken(mockUser);
+  async login(@Body() loginDto: LoginDto, @Req() req: Request) {
+    const tokens = await this.authService.login(
+      loginDto.email,
+      loginDto.password,
+      req.headers['user-agent'],
+      req.ip,
+    );
 
     return {
-      accessToken,
-      refreshToken,
+      ...tokens,
       tokenType: 'Bearer',
       expiresIn: 3600, // 60 minutes in seconds
     };
@@ -72,8 +98,12 @@ export class AuthController {
    */
   @Public()
   @Post('refresh')
-  async refresh(@Body() refreshDto: RefreshTokenDto) {
-    const tokens = this.authService.refreshTokens(refreshDto.refreshToken);
+  async refresh(@Body() refreshDto: RefreshTokenDto, @Req() req: Request) {
+    const tokens = await this.authService.refreshTokens(
+      refreshDto.refreshToken,
+      req.headers['user-agent'],
+      req.ip,
+    );
 
     return {
       ...tokens,

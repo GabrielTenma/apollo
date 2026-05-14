@@ -1,7 +1,12 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import * as bcrypt from 'bcrypt';
 import { JwtPayload } from './strategies/jwt.strategy';
+import { UserEntity } from '../supabase/entities/user.entity';
+import { UserSessionEntity } from '../supabase/entities/user-session.entity';
 
 export interface UserRoles {
   id: string;
@@ -14,7 +19,108 @@ export class AuthService {
   constructor(
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
+    @InjectRepository(UserEntity)
+    private readonly userRepository: Repository<UserEntity>,
+    @InjectRepository(UserSessionEntity)
+    private readonly sessionRepository: Repository<UserSessionEntity>,
   ) {}
+
+  /**
+   * Creates a new user with the provided credentials.
+   * Requires a valid creation key from config.
+   *
+   * @param email - User email
+   * @param password - User password
+   * @param role - User role
+   * @param creationKey - Secret key for creation authorization
+   */
+  async createUser(
+    email: string,
+    password: string,
+    role: string,
+    creationKey: string,
+  ): Promise<void> {
+    const expectedKey = this.configService.get<string>('JWT_SECRET_CREATION');
+    if (!expectedKey || creationKey !== expectedKey) {
+      throw new UnauthorizedException('Invalid creation key');
+    }
+
+    // Check if user already exists
+    const existingUser = await this.userRepository.findOne({
+      where: { email },
+    });
+    if (existingUser) {
+      throw new UnauthorizedException('User already exists');
+    }
+
+    // Hash the password
+    const passwordHash = await bcrypt.hash(password, 10);
+
+    // Create user with role
+    const user = this.userRepository.create({
+      email,
+      password_hash: passwordHash,
+      roles: [role],
+      is_active: true,
+    });
+
+    await this.userRepository.save(user);
+  }
+
+  /**
+   * Authenticates a user with email and password, creates a session.
+   *
+   * @param email - User email
+   * @param password - User password
+   * @param userAgent - Optional user agent
+   * @param ipAddress - Optional IP address
+   * @returns Access and refresh tokens
+   */
+  async login(
+    email: string,
+    password: string,
+    userAgent?: string,
+    ipAddress?: string,
+  ): Promise<{ accessToken: string; refreshToken: string }> {
+    const user = await this.userRepository.findOne({
+      where: { email, is_active: true },
+    });
+
+    if (!user || !user.password_hash) {
+      throw new UnauthorizedException('Invalid credentials');
+    }
+
+    const isPasswordValid = await bcrypt.compare(password, user.password_hash);
+    if (!isPasswordValid) {
+      throw new UnauthorizedException('Invalid credentials');
+    }
+
+    const userRoles: UserRoles = {
+      id: user.id,
+      email: user.email,
+      roles: user.roles,
+    };
+
+    const accessToken = this.generateAccessToken(userRoles);
+    const refreshToken = this.generateRefreshToken(userRoles);
+
+    // Hash the refresh token
+    const refreshTokenHash = await bcrypt.hash(refreshToken, 10);
+
+    // Create session
+    const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7 days
+    const session = this.sessionRepository.create({
+      user_id: user.id,
+      refresh_token_hash: refreshTokenHash,
+      user_agent: userAgent,
+      ip_address: ipAddress,
+      expires_at: expiresAt,
+    });
+
+    await this.sessionRepository.save(session);
+
+    return { accessToken, refreshToken };
+  }
 
   /**
    * Generates a JWT access token with user roles.
@@ -79,31 +185,65 @@ export class AuthService {
   }
 
   /**
-   * Validates a refresh token and returns a new access token.
+   * Validates a refresh token from database and returns new tokens.
    *
    * @param refreshToken - The refresh token to validate
+   * @param userAgent - Optional user agent
+   * @param ipAddress - Optional IP address
    * @returns New access token and refresh token pair
    * @throws UnauthorizedException if refresh token is invalid
    */
-  refreshTokens(refreshToken: string): {
-    accessToken: string;
-    refreshToken: string;
-  } {
-    try {
-      const payload = this.jwtService.verify<JwtPayload>(refreshToken);
+  async refreshTokens(
+    refreshToken: string,
+    userAgent?: string,
+    ipAddress?: string,
+  ): Promise<{ accessToken: string; refreshToken: string }> {
+    // Hash the incoming refresh token to match stored hash
+    const refreshTokenHash = await bcrypt.hash(refreshToken, 10);
 
-      const user: UserRoles = {
-        id: payload.sub,
-        email: payload.email,
-        roles: payload.roles || [],
-      };
+    const session = await this.sessionRepository.findOne({
+      where: {
+        refresh_token_hash: refreshTokenHash,
+        revoked_at: null,
+      },
+      relations: ['user'],
+    });
 
-      return {
-        accessToken: this.generateAccessToken(user),
-        refreshToken: this.generateRefreshToken(user),
-      };
-    } catch {
+    if (
+      !session ||
+      session.expires_at < new Date() ||
+      !session.user.is_active
+    ) {
       throw new UnauthorizedException('Invalid or expired refresh token');
     }
+
+    // Revoke the old session
+    session.revoked_at = new Date();
+    await this.sessionRepository.save(session);
+
+    // Create new session with new refresh token
+    const user = session.user;
+    const userRoles: UserRoles = {
+      id: user.id,
+      email: user.email,
+      roles: user.roles,
+    };
+
+    const newAccessToken = this.generateAccessToken(userRoles);
+    const newRefreshToken = this.generateRefreshToken(userRoles);
+    const newRefreshTokenHash = await bcrypt.hash(newRefreshToken, 10);
+
+    const newExpiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7 days
+    const newSession = this.sessionRepository.create({
+      user_id: user.id,
+      refresh_token_hash: newRefreshTokenHash,
+      user_agent: userAgent,
+      ip_address: ipAddress,
+      expires_at: newExpiresAt,
+    });
+
+    await this.sessionRepository.save(newSession);
+
+    return { accessToken: newAccessToken, refreshToken: newRefreshToken };
   }
 }

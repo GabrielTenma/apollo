@@ -21,6 +21,9 @@ export class UserEntity {
   @Column({ type: 'boolean', default: true })
   is_active: boolean;
 
+  @Column({ type: 'jsonb', default: ['user'] })
+  roles: string[];
+
   @Column({ type: 'timestamptz', default: () => 'now()' })
   created_at: Date;
 

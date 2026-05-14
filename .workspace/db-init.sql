@@ -5,6 +5,7 @@ CREATE TABLE users (
     password_hash VARCHAR(255), -- null for login via Telegram/Google
     full_name VARCHAR(255),
     is_active BOOLEAN DEFAULT true,
+    roles JSONB DEFAULT '["user"]'::jsonb,
     created_at TIMESTAMPTZ DEFAULT now(),
     updated_at TIMESTAMPTZ DEFAULT now()
 );

@@ -28,6 +28,8 @@
     "@nestjs/platform-express": "^9.0.0",
     "@nestjs/typeorm": "^9.0.0",
     "@supabase/supabase-js": "^2.105.4",
+    "@types/bcrypt": "^6.0.0",
+    "bcrypt": "^6.0.0",
     "cheerio": "^1.2.0",
     "ink": "^3.0.1",
     "passport": "^0.7.0",

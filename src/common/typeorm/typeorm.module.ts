@@ -34,8 +34,8 @@ import { FeatureConfigEntity } from '../../supabase/entities/feature-config.enti
           type: 'postgres',
           url,
           // In production you would likely disable synchronize.
-          // For the purpose of this integration example we enable it.
-          synchronize: true,
+          // For the purpose of this integration example we disable it since schema is managed via SQL.
+          synchronize: false,
           // Automatically load all entities registered via `forFeature`.
           autoLoadEntities: true,
         } as const;

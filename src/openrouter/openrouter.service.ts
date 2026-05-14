@@ -21,15 +21,15 @@ export class OpenRouterService {
   private readonly timeout: number;
 
   constructor(private readonly configService: ConfigService) {
-    this.apiKey = this.configService.get<string>('openrouter.apiKey') || '';
+    this.apiKey = this.configService.get<string>('OPENROUTER_API_KEY') || '';
     this.baseUrl =
-      this.configService.get<string>('openrouter.baseUrl') ||
+      this.configService.get<string>('OPENROUTER_BASE_URL') ||
       'https://openrouter.ai/api/v1';
     this.defaultModel =
-      this.configService.get<string>('openrouter.defaultModel') ||
+      this.configService.get<string>('OPENROUTER_DEFAULT_MODEL') ||
       'google/gemini-2.0-flash-exp:free';
     this.timeout =
-      this.configService.get<number>('openrouter.timeout') || 30000;
+      +(this.configService.get<string>('OPENROUTER_TIMEOUT') || '30000');
 
     if (!this.apiKey) {
       this.logger.warn('OpenRouter API key not configured');
