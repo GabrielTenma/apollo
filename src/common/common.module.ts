@@ -11,6 +11,9 @@ import { ConfigModule } from './config/config.module';
 import { CommonConfigService } from './config/config.service';
 import { OpenrouterRoutineService } from '../openrouter/routines/openrouter-routine.service';
 import { ScraperRoutineService } from '../scraper/routines/scraper-routine.service';
+import { ScrapedDataEntity } from '../supabase/entities/scraped-data.entity';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 /**
  * Global module that aggregates and exports shared cross-cutting concerns
  * such as authentication guards, role-based authorization, response transformers,
@@ -27,7 +30,7 @@ import { ScraperRoutineService } from '../scraper/routines/scraper-routine.servi
 @Module({
   // Import the routine configuration and our custom ConfigModule which provides
   // the thread‑safe CommonConfigService.
-  imports: [RoutineConfigModule, ConfigModule],
+  imports: [RoutineConfigModule, ConfigModule, TypeOrmModule.forFeature([ScrapedDataEntity])],
   providers: [
     // Guards: Applied globally in order (JWT authentication first, then Roles authorization)
     JwtAuthGuard,
@@ -63,7 +66,7 @@ import { ScraperRoutineService } from '../scraper/routines/scraper-routine.servi
     OpenrouterRoutineService,
     // Register the thread‑safe configuration service so it can be injected
     // throughout the application.
-    CommonConfigService,
+    CommonConfigService
   ],
   exports: [
     // Export the classes so they can be injected or used explicitly if needed
@@ -76,7 +79,7 @@ import { ScraperRoutineService } from '../scraper/routines/scraper-routine.servi
     ScraperRoutineService,
     OpenrouterRoutineService,
     // Export the configuration service for use in other modules.
-    CommonConfigService,
+    CommonConfigService
   ],
 })
 export class CommonModule {}

@@ -95,7 +95,7 @@ CREATE TABLE scraped_data (
     captured_at TIMESTAMPTZ DEFAULT now(),
     raw_content TEXT, -- HTML / JSON / CSV as string
     parsed_data JSONB, -- structured parsed result (already normalized)
-    data_hash VARCHAR(64) GENERATED ALWAYS AS (encode(sha256(raw_content::bytea), 'hex')) STORED, -- for deduplication
+    data_hash VARCHAR(64) GENERATED ALWAYS AS (encode(sha256(convert_to(raw_content, 'UTF8')), 'hex')) STORED, -- for deduplication
     status VARCHAR(20) DEFAULT 'new', -- 'new', 'processed', 'failed'
     processing_log TEXT,
     UNIQUE(source_id, data_hash) -- optional: avoid perfect duplicates
