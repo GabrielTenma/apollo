@@ -31,7 +31,9 @@ async function bootstrap() {
   // Update the first record (assuming it has an `id` field)
   if (Array.isArray(all) && all.length > 0) {
     const id = all[0].id;
-    const updated = await supabaseService.update(TABLE, id, { name: 'Alice Updated' });
+    const updated = await supabaseService.update(TABLE, id, {
+      name: 'Alice Updated',
+    });
     console.log('Updated record:', updated);
   }
 

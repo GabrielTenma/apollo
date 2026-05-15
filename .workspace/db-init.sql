@@ -5,6 +5,7 @@ CREATE TABLE users (
     password_hash VARCHAR(255), -- null for login via Telegram/Google
     full_name VARCHAR(255),
     is_active BOOLEAN DEFAULT true,
+    roles JSONB DEFAULT '["user"]'::jsonb,
     created_at TIMESTAMPTZ DEFAULT now(),
     updated_at TIMESTAMPTZ DEFAULT now()
 );
@@ -94,7 +95,7 @@ CREATE TABLE scraped_data (
     captured_at TIMESTAMPTZ DEFAULT now(),
     raw_content TEXT, -- HTML / JSON / CSV as string
     parsed_data JSONB, -- structured parsed result (already normalized)
-    data_hash VARCHAR(64) GENERATED ALWAYS AS (encode(sha256(raw_content::bytea), 'hex')) STORED, -- for deduplication
+    data_hash VARCHAR(64) GENERATED ALWAYS AS (encode(sha256(convert_to(raw_content, 'UTF8')), 'hex')) STORED, -- for deduplication
     status VARCHAR(20) DEFAULT 'new', -- 'new', 'processed', 'failed'
     processing_log TEXT,
     UNIQUE(source_id, data_hash) -- optional: avoid perfect duplicates
@@ -132,3 +133,43 @@ WHERE is_enabled = true AND priority = 0;
 
 -- Helper view to obtain value with fallback
 -- (can be implemented in the application or with a query window function)
+
+-- Additional indexes for scraped_data table
+CREATE INDEX idx_scraped_source ON scraped_data (source_id);
+CREATE INDEX idx_scraped_captured ON scraped_data (captured_at);
+CREATE INDEX idx_scraped_status ON scraped_data (status);
+
+-- Indexes for users table
+CREATE INDEX idx_users_email ON users (email);
+CREATE INDEX idx_users_created_at ON users (created_at);
+CREATE INDEX idx_users_active ON users (is_active);
+
+-- Indexes for user_auth_providers table
+CREATE INDEX idx_user_auth_user ON user_auth_providers (user_id);
+CREATE INDEX idx_user_auth_provider ON user_auth_providers (provider);
+
+-- Indexes for user_sessions table
+CREATE INDEX idx_user_sessions_user ON user_sessions (user_id);
+CREATE INDEX idx_user_sessions_expires ON user_sessions (expires_at);
+
+-- Indexes for telegram_bots table
+CREATE INDEX idx_telegram_bots_username ON telegram_bots (bot_username);
+
+-- Indexes for telegram_chats table
+CREATE INDEX idx_telegram_chats_bot ON telegram_chats (bot_id);
+CREATE INDEX idx_telegram_chats_linked_user ON telegram_chats (linked_user_id);
+
+-- Indexes for telegram_updates table
+CREATE INDEX idx_telegram_updates_bot ON telegram_updates (bot_id);
+CREATE INDEX idx_telegram_updates_chat ON telegram_updates (telegram_chat_id);
+CREATE INDEX idx_telegram_updates_date ON telegram_updates (message_date);
+
+-- Indexes for scraping_sources table
+CREATE INDEX idx_scraping_sources_type ON scraping_sources (source_type);
+CREATE INDEX idx_scraping_sources_active ON scraping_sources (is_active);
+CREATE INDEX idx_scraping_sources_created ON scraping_sources (created_at);
+
+-- Example row user (password: password123)
+INSERT INTO public.users
+(id, email, password_hash, full_name, is_active, created_at, updated_at, roles)
+VALUES('a84aefe6-4d53-4f1e-bbb9-070c29896b5e'::uuid, 'user@example.com', '$2b$10$SY6MTWGYVATZgydMRc0tteJm02cpb1Z8WnXERdwctIHk7qW0nQvCq', NULL, true, '2026-05-15 06:01:45.467', '2026-05-15 06:01:45.467', '["user"]'::jsonb);

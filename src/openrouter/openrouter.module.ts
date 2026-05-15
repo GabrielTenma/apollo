@@ -2,6 +2,8 @@ import { Module, Global } from '@nestjs/common';
 import { OpenRouterService } from './openrouter.service';
 import { OpenRouterController } from './openrouter.controller';
 import { FinancialAgentService } from './agents/financial.agent';
+import { ScrapedDataEntity } from '../supabase/entities/scraped-data.entity';
+import { TypeOrmModule } from '@nestjs/typeorm';
 
 /**
  * Module for OpenRouter AI functionality.
@@ -13,6 +15,7 @@ import { FinancialAgentService } from './agents/financial.agent';
  */
 @Global()
 @Module({
+  imports: [TypeOrmModule.forFeature([ScrapedDataEntity])],
   providers: [OpenRouterService, FinancialAgentService],
   controllers: [OpenRouterController],
   exports: [OpenRouterService, FinancialAgentService],

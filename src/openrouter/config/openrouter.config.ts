@@ -2,12 +2,21 @@
  * OpenRouter configuration
  * This file contains the configuration for OpenRouter API
  */
+import { ConfigService } from '@nestjs/config';
+import { CommonConfigService } from '../../common/config/config.service';
+
+// Instantiate CommonConfigService using Nest's ConfigService to access environment variables.
+const commonConfigService = new CommonConfigService(new ConfigService());
+
 export const openRouterConfig = () => ({
   openrouter: {
-    apiKey: process.env.OPENROUTER_API_KEY || '',
-    baseUrl: process.env.OPENROUTER_BASE_URL || 'https://openrouter.ai/api/v1',
-    defaultModel: process.env.OPENROUTER_DEFAULT_MODEL || 'openrouter/free',
-    timeout: parseInt(process.env.OPENROUTER_TIMEOUT || '30000', 10),
+    apiKey: commonConfigService.get('OPENROUTER_API_KEY') ?? '',
+    baseUrl:
+      commonConfigService.get('OPENROUTER_BASE_URL') ??
+      'https://openrouter.ai/api/v1',
+    defaultModel:
+      commonConfigService.get('OPENROUTER_DEFAULT_MODEL') ?? 'openrouter/free',
+    timeout: commonConfigService.getNumber('OPENROUTER_TIMEOUT', 30000),
   },
 });
 

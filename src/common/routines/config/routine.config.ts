@@ -16,10 +16,18 @@ export interface RoutineConfig {
   executionMode?: RoutineExecutionMode;
 }
 
+import { ConfigService } from '@nestjs/config';
+import { CommonConfigService } from '../../config/config.service';
+
+// Instantiate CommonConfigService using Nest's ConfigService to access environment variables.
+const commonConfigService = new CommonConfigService(new ConfigService());
+
 export const routineConfig: RoutineConfig = {
-  enabled: process.env.ROUTINE_ENABLED === 'true',
+  enabled: commonConfigService.getBoolean('ROUTINE_ENABLED') ?? false,
   executionMode:
-    (process.env.ROUTINE_EXECUTION_MODE as RoutineExecutionMode) || 'wait',
+    (commonConfigService.get(
+      'ROUTINE_EXECUTION_MODE',
+    ) as RoutineExecutionMode) || 'wait',
 };
 
 /**

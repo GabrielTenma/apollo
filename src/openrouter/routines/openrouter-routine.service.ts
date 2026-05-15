@@ -6,6 +6,10 @@ import {
   AppConstants,
 } from '../../constants/app.constants';
 import { FinancialAgentService } from '../agents/financial.agent';
+import { ScrapedDataEntity } from '../../supabase/entities/scraped-data.entity';
+import * as crypto from 'crypto';
+import { Repository } from 'typeorm';
+import { InjectRepository } from '@nestjs/typeorm';
 
 @Injectable()
 export class OpenrouterRoutineService implements OnModuleInit {
@@ -14,8 +18,9 @@ export class OpenrouterRoutineService implements OnModuleInit {
   constructor(
     private readonly routineService: RoutineService,
     private readonly financialAgentService: FinancialAgentService,
+    @InjectRepository(ScrapedDataEntity) private readonly scrapedDataRepository: Repository<ScrapedDataEntity>,
     @Inject(APP_CONSTANTS) private readonly constants: AppConstants,
-  ) {}
+  ) { }
 
   onModuleInit() {
     // Only set up routines if globally enabled
@@ -49,9 +54,9 @@ export class OpenrouterRoutineService implements OnModuleInit {
         // execute by condition
         if (isStoreHasContents) {
           const chatCompletion = await this.financialAgentService.queryChat({
-            financialJuiceContent: JSON.stringify(financialJuice),
-            yahooFinanceContent: JSON.stringify(yahooFinance),
-            coinmarketCapContent: JSON.stringify(coinmarketCap),
+            financialJuiceContent: JSON.stringify(financialJuice || ''),
+            yahooFinanceContent: JSON.stringify(yahooFinance || ''),
+            coinmarketCapContent: JSON.stringify(coinmarketCap || ''),
             maxTextLength: 500,
             ideaWordsLength: 300,
             riskReminder: 3,
@@ -60,12 +65,16 @@ export class OpenrouterRoutineService implements OnModuleInit {
           });
           appConstants.scrapedContentStore.set('completion', chatCompletion);
 
-          const isFillCompletionPrev =
-            completionPrev != undefined && chatCompletion != completionPrev;
-          appConstants.scrapedContentStore.set(
-            'completion-previous',
-            isFillCompletionPrev ? chatCompletion : completionPrev,
-          );
+          // Put into repository
+          let chatCompletionDataEntity: ScrapedDataEntity = {
+            source_id: 'ac851202-bc72-43c8-b784-e213b5907159',
+            parsed_data: { chatCompletion: chatCompletion },
+            raw_content: Buffer.from(chatCompletion || '').toString('utf-8'),
+            data_hash: crypto.createHash('sha256').update(chatCompletion || '').digest('hex').substring(0, 64),
+            status: 'result'
+          }
+          const scrapedData = this.scrapedDataRepository.create(chatCompletionDataEntity);
+          await this.scrapedDataRepository.save(scrapedData);
 
           this.routineTime = 100000;
         } else {
@@ -77,8 +86,7 @@ export class OpenrouterRoutineService implements OnModuleInit {
     );
 
     this.logger.log(
-      `Started ${
-        this.routineService.getRunningRoutines().length
+      `Started ${this.routineService.getRunningRoutines().length
       } collector routines`,
     );
   }

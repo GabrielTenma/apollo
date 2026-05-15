@@ -1,4 +1,9 @@
 import { registerAs } from '@nestjs/config';
+import { ConfigService } from '@nestjs/config';
+import { CommonConfigService } from '../../common/config/config.service';
+
+// Instantiate CommonConfigService using Nest's ConfigService to access environment variables.
+const commonConfigService = new CommonConfigService(new ConfigService());
 
 /**
  * Supabase configuration loaded from environment variables.
@@ -8,6 +13,6 @@ import { registerAs } from '@nestjs/config';
  *   SUPABASE_KEY=public-anon-key
  */
 export const supabaseConfig = registerAs('supabase', () => ({
-  url: process.env.SUPABASE_URL,
-  key: process.env.SUPABASE_KEY,
+  url: commonConfigService.get('SUPABASE_URL') ?? '',
+  key: commonConfigService.get('SUPABASE_KEY') ?? '',
 }));
