@@ -365,6 +365,24 @@ export class ScraperController {
   }
 
   /**
+   * Get latest scraped data (llm result)
+   * @returns single/multiple by size processed data
+   */
+  @Get('scraped-data/result/latest/:size')
+  async getResultLatest(
+    @Param('size') size?: number
+  ): Promise<ScrapedDataEntity[]> {
+    this.logger.log('Getting single processed result');
+    return await this.scrapedDataRepository.find({
+      where: { source_id: 'ac851202-bc72-43c8-b784-e213b5907159'}, // openrouter source_id
+      relations: ['source'],
+      take: size || 1,
+      skip: 0,
+      order: { captured_at: 'DESC' }
+    });
+  }
+
+  /**
    * Get scraped data by source ID
    * @param sourceId - Source ID
    * @returns Array of scraped data for the source
