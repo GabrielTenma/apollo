@@ -18,9 +18,10 @@ export class OpenrouterRoutineService implements OnModuleInit {
   constructor(
     private readonly routineService: RoutineService,
     private readonly financialAgentService: FinancialAgentService,
-    @InjectRepository(ScrapedDataEntity) private readonly scrapedDataRepository: Repository<ScrapedDataEntity>,
+    @InjectRepository(ScrapedDataEntity)
+    private readonly scrapedDataRepository: Repository<ScrapedDataEntity>,
     @Inject(APP_CONSTANTS) private readonly constants: AppConstants,
-  ) { }
+  ) {}
 
   onModuleInit() {
     // Only set up routines if globally enabled
@@ -66,14 +67,20 @@ export class OpenrouterRoutineService implements OnModuleInit {
           appConstants.scrapedContentStore.set('completion', chatCompletion);
 
           // Put into repository
-          let chatCompletionDataEntity: ScrapedDataEntity = {
+          const chatCompletionDataEntity: ScrapedDataEntity = {
             source_id: 'ac851202-bc72-43c8-b784-e213b5907159',
             parsed_data: { chatCompletion: chatCompletion },
             raw_content: Buffer.from(chatCompletion || '').toString('utf-8'),
-            data_hash: crypto.createHash('sha256').update(chatCompletion || '').digest('hex').substring(0, 64),
-            status: 'result'
-          }
-          const scrapedData = this.scrapedDataRepository.create(chatCompletionDataEntity);
+            data_hash: crypto
+              .createHash('sha256')
+              .update(chatCompletion || '')
+              .digest('hex')
+              .substring(0, 64),
+            status: 'result',
+          };
+          const scrapedData = this.scrapedDataRepository.create(
+            chatCompletionDataEntity,
+          );
           await this.scrapedDataRepository.save(scrapedData);
 
           this.routineTime = 100000;
@@ -86,7 +93,8 @@ export class OpenrouterRoutineService implements OnModuleInit {
     );
 
     this.logger.log(
-      `Started ${this.routineService.getRunningRoutines().length
+      `Started ${
+        this.routineService.getRunningRoutines().length
       } collector routines`,
     );
   }
