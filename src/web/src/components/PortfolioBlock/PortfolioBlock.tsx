@@ -1,4 +1,6 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, ReactNode } from "react";
+import Markdown from "react-markdown";
+import Gfm from "remark-gfm";
 
 interface ContentItem {
   name: string;
@@ -13,6 +15,63 @@ interface CompletionApiResponse {
   timestamp: string;
   status_code: number;
 }
+
+const TABLE_CLS = "table table-xs table-pin-rows table-pin-cols";
+
+/* ------------------------------------------------------------------ */
+/*  react-markdown custom renderers                                   */
+/* ------------------------------------------------------------------ */
+
+function MarkdownElTable({ children }: { children?: ReactNode }) {
+  return (
+    <div className="my-4 w-full overflow-x-auto rounded-btn">
+      <table className={TABLE_CLS}>{children}</table>
+    </div>
+  );
+}
+
+function MarkdownElTh({ children }: { children?: ReactNode }) {
+  return <th className="!text-wrap">{children}</th>;
+}
+
+function MarkdownElTd({ children }: { children?: ReactNode }) {
+  return <td className="!text-wrap">{children}</td>;
+}
+
+function MarkdownElThead({ children }: { children?: ReactNode }) {
+  return <thead>{children}</thead>;
+}
+
+function MarkdownElTbody({ children }: { children?: ReactNode }) {
+  return <tbody>{children}</tbody>;
+}
+
+function MarkdownElTfoot({ children }: { children?: ReactNode }) {
+  return <tfoot>{children}</tfoot>;
+}
+
+function MarkdownElTr({ children }: { children?: ReactNode }) {
+  return <tr>{children}</tr>;
+}
+
+function MarkdownElP({ children }: { children?: ReactNode }) {
+  return <p>{children}</p>;
+}
+
+const markdownComponents = {
+  table: MarkdownElTable,
+  th: MarkdownElTh,
+  td: MarkdownElTd,
+  thead: MarkdownElThead,
+  tbody: MarkdownElTbody,
+  tfoot: MarkdownElTfoot,
+  tr: MarkdownElTr,
+  p: MarkdownElP,
+};
+
+/* ------------------------------------------------------------------ */
+/*  Component                                                          */
+/* ------------------------------------------------------------------ */
 
 export default function PortfolioBlock() {
   const [latest, setLatest] = useState<string>("");
@@ -59,18 +118,21 @@ export default function PortfolioBlock() {
           </div>
 
           {/* Project Details Section */}
-          <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+          <div className="grid grid-cols-1 gap-6 lg:grid-cols-1">
 
             {/* Project Information */}
             <div className="space-y-6 px-6">
               <h3 className="text-base-content text-3xl font-semibold">
                 Latest Completion
               </h3>
-              <p className="text-base-content/80 whitespace-pre-wrap">
+              <Markdown
+                remarkPlugins={[Gfm]}
+                components={markdownComponents}
+              >
                 {loading
                   ? "Loading..."
                   : latest || "No latest completion available"}
-              </p>
+              </Markdown>
 
               <hr className="border-base-content/20" />
 

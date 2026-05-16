@@ -58,11 +58,11 @@ export class OpenrouterRoutineService implements OnModuleInit {
             financialJuiceContent: JSON.stringify(financialJuice || ''),
             yahooFinanceContent: JSON.stringify(yahooFinance || ''),
             coinmarketCapContent: JSON.stringify(coinmarketCap || ''),
-            maxTextLength: 500,
+            maxTextLength: 1000,
             ideaWordsLength: 300,
             riskReminder: 3,
             tradeIdeas: '1-5',
-            language: 'indonesian',
+            language: 'english',
           });
           appConstants.scrapedContentStore.set('completion', chatCompletion);
 
