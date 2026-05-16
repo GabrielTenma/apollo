@@ -200,7 +200,6 @@ export class ScraperController {
    * FinancialJuice endpoint for get latest news
    * @returns News
    */
-  @Public()
   @Get('financialjuice')
   async financialJuice(): Promise<any> {
     this.logger.log(`Requested to scrape FinancialJuice`);
@@ -215,7 +214,6 @@ export class ScraperController {
    * CoinmarketCap endpoint for get latest price
    * @returns Coins
    */
-  @Public()
   @Get('coinmarketcap')
   async coinmarketCap(): Promise<any> {
     this.logger.log(`Requested to scrape CoinmarketCap`);
@@ -230,7 +228,6 @@ export class ScraperController {
    * CoinmarketCap endpoint for get latest price
    * @returns Coins
    */
-  @Public()
   @Get('yahoofinance')
   async yahooFinance(): Promise<any> {
     this.logger.log(`Requested to scrape Yahoo Finance`);
@@ -339,7 +336,11 @@ export class ScraperController {
 
     // Save scraped data to database
     const rawContent = JSON.stringify(scrapeResult);
-    const dataHash = crypto.createHash('sha256').update(rawContent).digest('hex').substring(0, 64);
+    const dataHash = crypto
+      .createHash('sha256')
+      .update(rawContent)
+      .digest('hex')
+      .substring(0, 64);
 
     const scrapedData = this.scrapedDataRepository.create({
       source_id: id,
@@ -370,15 +371,15 @@ export class ScraperController {
    */
   @Get('scraped-data/result/latest/:size')
   async getResultLatest(
-    @Param('size') size?: number
+    @Param('size') size?: number,
   ): Promise<ScrapedDataEntity[]> {
     this.logger.log('Getting single processed result');
     return await this.scrapedDataRepository.find({
-      where: { source_id: 'ac851202-bc72-43c8-b784-e213b5907159'}, // openrouter source_id
+      where: { source_id: 'ac851202-bc72-43c8-b784-e213b5907159' }, // openrouter source_id
       relations: ['source'],
       take: size || 1,
       skip: 0,
-      order: { captured_at: 'DESC' }
+      order: { captured_at: 'DESC' },
     });
   }
 

@@ -20,19 +20,17 @@ export class CommonConfigService {
   private readonly configMap: Record<string, string>;
 
   constructor(private readonly configService: NestConfigService) {
-    // Populate the map once – this is safe because process.env is static for the
-    // lifetime of the Node.js process.
     const map: Record<string, string> = {};
     for (const key of Object.keys(process.env)) {
       const value = process.env[key];
       if (value !== undefined && value !== null && value !== '') {
-        map[key] = value;
+        map[key] = value.trim();
       }
     }
     this.configMap = map;
   }
 
-  /** Retrieve a raw string value. */
+  /** Retrieve a raw string value with an optional null‑safe fallback. */
   get(key: string, defaultValue?: string): string | undefined {
     const value = this.configMap[key];
     return value !== undefined ? value : defaultValue;
@@ -51,6 +49,127 @@ export class CommonConfigService {
     const raw = this.get(key);
     if (raw === undefined) return defaultValue;
     return raw.toLowerCase() === 'true';
+  }
+
+  /**
+   * Retrieve a JSON value and cast to T (object, array, map, etc.).
+   * Falls back to `defaultValue` when the key is missing or the value is not valid JSON.
+   */
+  getObject<T>(key: string, defaultValue?: T): T | undefined {
+    const raw = this.get(key);
+    if (raw === undefined) return defaultValue;
+    try {
+      return JSON.parse(raw) as T;
+    } catch {
+      return defaultValue;
+    }
+  }
+
+  /**
+   * Retrieve an array of T by parsing the raw string value.
+   *
+   * Parsing strategy:
+   *  1. Try `JSON.parse` – succeeds for `["a","b"]` or `[1,2]`.
+   *  2. If that fails, split on `,` and trim each segment.
+   *
+   * Examples:
+   *  - `"a,b,c"`          → `["a","b","c"]`
+   *  - `'"a","b","c"'`    → `["a","b","c"]`  (JSON comma-parses)
+   *  - `"a, b , c"`       → `["a","b","c"]`
+   *  - `"[1,2,3]"`        → `[1,2,3]`
+   *
+   * @param key               Config key.
+   * @param defaultValue      Returned when the key is absent or parsing fails.
+   * @param separator         Delimiter for plain-string splitting (default `","`).
+   * @param trimItems         Whether to trim whitespace from each item.
+   */
+  getArray<T = string>(
+    key: string,
+    defaultValue?: T[],
+    separator = ',',
+    trimItems = true,
+  ): T[] | undefined {
+    const raw = this.get(key);
+    if (raw === undefined || raw === '') return defaultValue ?? [];
+
+    /** Json array */
+    const trimmed = raw.trim();
+    if (trimmed.startsWith('[') && trimmed.endsWith(']')) {
+      try {
+        return JSON.parse(trimmed) as T[];
+      } catch {
+        // fall through to plain-string splitting
+      }
+    }
+
+    /** Plain string split */
+    const items = raw.split(separator);
+    if (trimItems) {
+      return items.map((s) => s.trim()) as T[];
+    }
+    return items as T[];
+  }
+
+  /**
+   * Validate that a key exists and its value is one of the allowed options.
+   * Returns the canonical (cased) option that was matched.
+   *
+   * @throws  Error if the key is missing, empty, or not in `allowed`.
+   */
+  getEnum(key: string, allowed: readonly string[]): string;
+  /**
+   * Variant with a fallback default returned silently when the key is missing.
+   * Throws only if a value is present but not in `allowed`.
+   */
+  getEnum(
+    key: string,
+    allowed: readonly string[],
+    defaultValue: string,
+  ): string;
+  getEnum(
+    key: string,
+    allowed: readonly string[],
+    defaultValue?: string,
+  ): string {
+    const raw = this.get(key);
+    if (raw === undefined || raw === '') {
+      if (defaultValue !== undefined) return defaultValue;
+      throw new Error(
+        `Required config key "${key}" is not set. ` +
+          `Allowed values: ${allowed.join(', ')}.`,
+      );
+    }
+    if (!allowed.includes(raw)) {
+      throw new Error(
+        `Invalid value "${raw}" for config key "${key}". ` +
+          `Allowed values: ${allowed.join(', ')}.`,
+      );
+    }
+    return raw;
+  }
+
+  /**
+   * Retrieve a required config value.
+   * @throws  Error if the key is missing or its value is an empty / whitespace-only string.
+   */
+  require(key: string): string;
+  /**
+   * Variant with a fallback default returned when the key is missing.
+   * Still throws when the key exists but is empty/whitespace-only.
+   */
+  require(key: string, defaultValue: string): string;
+  require(key: string, defaultValue?: string): string {
+    const raw = this.get(key);
+    if (raw === undefined) {
+      if (defaultValue !== undefined) return defaultValue;
+      throw new Error(`Required config key "${key}" is not set.`);
+    }
+    if (raw.trim() === '') {
+      throw new Error(
+        `Required config key "${key}" is set but is empty or whitespace-only.`,
+      );
+    }
+    return raw;
   }
 
   /** Check existence of a key. */

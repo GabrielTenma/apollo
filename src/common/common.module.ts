@@ -30,7 +30,11 @@ import { Repository } from 'typeorm';
 @Module({
   // Import the routine configuration and our custom ConfigModule which provides
   // the thread‑safe CommonConfigService.
-  imports: [RoutineConfigModule, ConfigModule, TypeOrmModule.forFeature([ScrapedDataEntity])],
+  imports: [
+    RoutineConfigModule,
+    ConfigModule,
+    TypeOrmModule.forFeature([ScrapedDataEntity]),
+  ],
   providers: [
     // Guards: Applied globally in order (JWT authentication first, then Roles authorization)
     JwtAuthGuard,
@@ -66,7 +70,7 @@ import { Repository } from 'typeorm';
     OpenrouterRoutineService,
     // Register the thread‑safe configuration service so it can be injected
     // throughout the application.
-    CommonConfigService
+    CommonConfigService,
   ],
   exports: [
     // Export the classes so they can be injected or used explicitly if needed
@@ -79,7 +83,7 @@ import { Repository } from 'typeorm';
     ScraperRoutineService,
     OpenrouterRoutineService,
     // Export the configuration service for use in other modules.
-    CommonConfigService
+    CommonConfigService,
   ],
 })
 export class CommonModule {}
