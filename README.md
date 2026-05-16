@@ -22,12 +22,10 @@ Basically this app just collect data from trusted platform who updates related e
 
 For the future plan focusing integrate to stackyrd pkg which `diameter-tscd` project, frontend and manageable web-content.
 
-## Preview
-<img src=".github/assets/preview.png" alt="Preview" style="width: 60%; max-width: 500px;"/>
+To see a `sequence diagram` complete, click <a href="https://sequencediagram.org/index.html#initialData=C4S2BsFMAIEMAcD25yIFBoMbhJAdsALQB8CyqAXAE6QCOArpAM7AXQD0CI7AbgIztM5SJmCIqaMikQl4VRDxAATSFWgBBCkJQjg0JbGCxoIAqryGQiC+GgAjGrADWpgObQ8kAO5NoAMmhQTCdVSSRpWXlFFTUAIS1hUX1DY3BDZj1PH2gAM3oUaBZxAE8w8hliRHh8eXpgVTYaBgy2YCpYPCY0+uhtKFFIJWSjNCqaxDrVEilKaBomJE7IVvbO7sHh2DQ8RB6FVThw2cxYTAALN0CzmHn84AxsXAIAHkIZxGpmRaZluchYAx2KD6RCYegAW3w922uxg+zU70aE1AnmgqCqhWqmBAOVwQ1AkLKERITFBIFg4DYPzwQx2oFxJ1A1n8vWs9QIQA">here</a>.
 
-## Diagram
-<img src=".github/assets/uml.png" alt="UML" style="width: 60%; max-width: 300px;"/>
-to see complete, click <a href="https://sequencediagram.org/index.html#initialData=C4S2BsFMAIEMAcD25yIFBoMbhJAdsALQB8CyqAXAE6QCOArpAM7AXQD0CI7AbgIztM5SJmCIqaMikQl4VRDxAATSFWgBBCkJQjg0JbGCxoIAqryGQiC+GgAjGrADWpgObQ8kAO5NoAMmhQTCdVSSRpWXlFFTUAIS1hUX1DY3BDZj1PH2gAM3oUaBZxAE8w8hliRHh8eXpgVTYaBgy2YCpYPCY0+uhtKFFIJWSjNCqaxDrVEilKaBomJE7IVvbO7sHh2DQ8RB6FVThw2cxYTAALN0CzmHn84AxsXAIAHkIZxGpmRaZluchYAx2KD6RCYegAW3w922uxg+zU70aE1AnmgqCqhWqmBAOVwQ1AkLKERITFBIFg4DYPzwQx2oFxJ1A1n8vWs9QIQA">here</a>.
+## Preview
+![Web](.github/assets/preview.png)
 
 ## License
 Use Apache 2. See `LICENSE` for deal your free time.
