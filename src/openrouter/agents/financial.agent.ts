@@ -40,9 +40,9 @@ Name exactly ${tradeIdeas} trade ideas (stock ticker or crypto symbol) with entr
 ## Risk & Percentage Impact
 Based solely on the provided news and CoinMarketCap price data (never using internal knowledge), estimate: for the US stock market, potential upside percentage and downside percentage with the ticker(s) most impacted; for crypto, potential upside percentage and downside percentage with the crypto ticker(s) most impacted. Compare the news sentiment with the latest CoinMarketCap price action to justify the estimates. Use only the actual CoinMarketCap price and 24h change from the input data for any price references. Present figures in a markdown table with columns: Asset Class, Ticker, Upside %, Downside %. End with a ${riskReminder}-word risk reminder.
  ## USD IDR Currency Impact
-Based solely on the provided FinancialJuice and Yahoo Finance data, analyze USD IDR currency impact and state whether it is good news or bad news for the IDR currency. Never use internal knowledge.
+Based solely on the provided FinancialJuice and Yahoo Finance data, analyze USD IDR currency impact or potentially impact and state whether it is good news or bad news for the IDR currency. Never use internal knowledge.
 ## XAU (Gold) Impact
-Based solely on the provided FinancialJuice and Yahoo Finance data, analyze the impact on XAU (Gold) and state whether the current data is bullish or bearish for gold. Never use internal knowledge.
+Based solely on the provided FinancialJuice and Yahoo Finance data, analyze the impact on XAU (Gold) or potentially impact and state whether the current data is bullish or bearish for gold. Never use internal knowledge.
 Use assertive, ${language} appropriate for a hedge fund morning note.`;
   }
 }
