@@ -1,4 +1,4 @@
-import { PageFunction } from "node_modules/playwright-core/types/structs";
+import { PageFunction } from 'node_modules/playwright-core/types/structs';
 
 /**
  * Interface for scrape options
@@ -15,14 +15,17 @@ export interface ScrapeOptions {
     domain: string;
     path?: string;
   }>;
+  htmlContent?: boolean;
+  bypassCSP?: boolean;
   screenshot?: boolean;
   screenshotPath?: string;
   handlePopupClose?: boolean;
   pageLocatorPerformClick?: string;
-  pageLocatorPerformClickCoordinate?: {x: number, y: number}
+  pageLocatorPerformClickCoordinate?: { x: number; y: number; isLoop: boolean };
   pageLocatorPerformAutoScroll?: boolean;
   addPageEvaluate?: Array<PageFunction<void, any>>;
-  addStyleHidePopup?: boolean
+  addPageEvaluateLazyScroll?: boolean;
+  addStyleHidePopup?: boolean | string;
 }
 
 /**

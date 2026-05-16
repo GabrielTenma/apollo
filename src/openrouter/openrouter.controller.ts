@@ -1,11 +1,19 @@
-import { Controller, Post, Body, Get, Logger } from '@nestjs/common';
+import { Controller, Post, Body, Get, Logger, Inject } from '@nestjs/common';
 import { OpenRouterService } from './openrouter.service';
 import {
   ChatCompletionOptions,
   ChatCompletionResponse,
   OpenRouterModel,
 } from './interfaces/openrouter.interface';
-import { ApiResponse } from '../common/utils/response.util';
+import { Roles } from '../common/decorators/roles.decorator';
+import { Public } from '../common/decorators/public.decorator';
+import {
+  APP_CONSTANTS,
+  AppConstants,
+  appConstants,
+} from '../constants/app.constants';
+import { successResponse } from '../common/utils/response.util';
+import { FinancialAgentService } from './agents/financial.agent';
 
 /**
  * Controller for OpenRouter AI operations.
@@ -16,7 +24,11 @@ import { ApiResponse } from '../common/utils/response.util';
 export class OpenRouterController {
   private readonly logger = new Logger(OpenRouterController.name);
 
-  constructor(private readonly openRouterService: OpenRouterService) {}
+  constructor(
+    private readonly openRouterService: OpenRouterService,
+    private readonly financialAgentService: FinancialAgentService,
+    @Inject(APP_CONSTANTS) private readonly constants: AppConstants,
+  ) {}
 
   /**
    * Creates a chat completion
@@ -34,17 +46,13 @@ export class OpenRouterController {
    * }
    */
   @Post('chat')
+  @Roles('admin', 'moderator')
   async createChatCompletion(
     @Body() options: ChatCompletionOptions,
-  ): Promise<ApiResponse> {
+  ): Promise<any> {
     this.logger.log(`Chat completion request with model: ${options.model}`);
     try {
-      const result = await this.openRouterService.createChatCompletion(options);
-      return {
-        success: true,
-        data: result,
-        timestamp: new Date().toISOString(),
-      };
+      return await this.openRouterService.createChatCompletion(options);
     } catch (error) {
       this.logger.error('Chat completion failed:', error);
       throw error;
@@ -59,15 +67,11 @@ export class OpenRouterController {
    * GET /openrouter/models
    */
   @Get('models')
-  async listModels(): Promise<ApiResponse> {
+  @Roles('admin', 'moderator')
+  async listModels(): Promise<any> {
     this.logger.log('Listing available models');
     try {
-      const models = await this.openRouterService.listModels();
-      return {
-        success: true,
-        data: models,
-        timestamp: new Date().toISOString(),
-      };
+      return await this.openRouterService.listModels();
     } catch (error) {
       this.logger.error('Failed to list models:', error);
       throw error;
@@ -90,11 +94,12 @@ export class OpenRouterController {
    * }
    */
   @Post('simple-chat')
+  @Roles('admin', 'moderator')
   async simpleChat(
     @Body('prompt') prompt: string,
     @Body('model') model?: string,
     @Body('systemPrompt') systemPrompt?: string,
-  ): Promise<ApiResponse> {
+  ): Promise<any> {
     this.logger.log(`Simple chat request: ${prompt.substring(0, 50)}...`);
     try {
       const response = await this.openRouterService.chat(
@@ -102,11 +107,7 @@ export class OpenRouterController {
         model,
         systemPrompt,
       );
-      return {
-        success: true,
-        data: { response },
-        timestamp: new Date().toISOString(),
-      };
+      return { response };
     } catch (error) {
       this.logger.error('Simple chat failed:', error);
       throw error;
@@ -117,12 +118,44 @@ export class OpenRouterController {
    * Health check endpoint for the OpenRouter service
    * @returns Health status
    */
+  @Public()
   @Get('health')
-  async healthCheck(): Promise<ApiResponse> {
-    return {
-      success: true,
-      data: { status: 'ok', service: 'openrouter' },
-      timestamp: new Date().toISOString(),
+  async healthCheck(): Promise<any> {
+    return { status: 'ok', service: 'openrouter' };
+  }
+
+  @Public()
+  @Get('completion')
+  async completion(): Promise<any> {
+    this.logger.log(`Requested to get routine completion`);
+
+    type Content = {
+      name: string;
+      value: any;
     };
+    const content: Content[] = [];
+
+    // latest
+    const contentLatest = appConstants.scrapedContentStore.get('completion');
+    if (contentLatest != undefined) {
+      content.push({
+        name: 'latest',
+        value: contentLatest,
+      });
+    }
+
+    // old
+    const contentPrevious = appConstants.scrapedContentStore.get(
+      'completion-previous',
+    );
+    if (contentPrevious != undefined && contentPrevious != contentLatest) {
+      content.push({
+        name: 'previous',
+        value: contentPrevious,
+      });
+    }
+    return content.length === 0
+      ? successResponse(undefined, 'on process routine', 202)
+      : successResponse(content);
   }
 }

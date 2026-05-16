@@ -2,24 +2,33 @@
  * Telegram configuration
  * This file contains the configuration for Telegram Bot API
  */
-export const telegramConfig = {
-  botToken: process.env.TELEGRAM_BOT_TOKEN || '',
-  webhookUrl: process.env.TELEGRAM_WEBHOOK_URL || '',
-  webhookSecret: process.env.TELEGRAM_WEBHOOK_SECRET || '',
-  timeout: parseInt(process.env.TELEGRAM_TIMEOUT || '30000', 10),
-};
+import { ConfigService } from '@nestjs/config';
+import { CommonConfigService } from '../../common/config/config.service';
+
+// Instantiate CommonConfigService using Nest's ConfigService to access environment variables.
+const commonConfigService = new CommonConfigService(new ConfigService());
+
+export const telegramConfig = () => ({
+  telegram: {
+    botToken: commonConfigService.get('TELEGRAM_BOT_TOKEN') ?? '',
+    webhookUrl: commonConfigService.get('TELEGRAM_WEBHOOK_URL') ?? '',
+    webhookSecret: commonConfigService.get('TELEGRAM_WEBHOOK_SECRET') ?? '',
+    timeout: commonConfigService.getNumber('TELEGRAM_TIMEOUT', 30000),
+  },
+});
 
 /**
  * Validation function for Telegram configuration
  */
 export function validateTelegramConfig() {
+  const config = telegramConfig();
   const errors: string[] = [];
 
-  if (!telegramConfig.botToken) {
+  if (!config.telegram.botToken) {
     errors.push('TELEGRAM_BOT_TOKEN is not set in environment variables');
   }
 
-  if (telegramConfig.timeout <= 0) {
+  if (config.telegram.timeout <= 0) {
     errors.push('TELEGRAM_TIMEOUT must be a positive number');
   }
 

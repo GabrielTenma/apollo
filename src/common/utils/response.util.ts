@@ -5,6 +5,7 @@ export interface ApiResponse<T = unknown> {
   success: boolean;
   data?: T;
   message?: string;
+  correlation_id: string;
   timestamp: string;
   statusCode?: number;
 }
@@ -14,18 +15,21 @@ export interface ApiResponse<T = unknown> {
  * @param data - The data to include in the response
  * @param message - Optional success message
  * @param statusCode - Optional HTTP status code (default: 200)
+ * @param correlationId - Optional correlation ID (auto-generated if not provided)
  * @returns A standardized success response object
  */
 export const successResponse = <T>(
   data?: T,
   message?: string,
-  statusCode = 200,
+  statusCode?: number,
+  correlationId?: string,
 ): ApiResponse<T> => ({
   success: true,
   data,
   message,
+  correlation_id: correlationId || crypto.randomUUID(),
   timestamp: new Date().toISOString(),
-  statusCode,
+  statusCode: statusCode || 200,
 });
 
 /**
@@ -33,16 +37,19 @@ export const successResponse = <T>(
  * @param message - The error message
  * @param statusCode - HTTP status code (default: 400)
  * @param errors - Optional array of detailed errors
+ * @param correlationId - Optional correlation ID (auto-generated if not provided)
  * @returns A standardized error response object
  */
 export const errorResponse = (
   message: string,
   statusCode = 400,
   errors?: string[],
+  correlationId?: string,
 ): ApiResponse<null> => ({
   success: false,
   data: null,
   message,
+  correlation_id: correlationId || crypto.randomUUID(),
   timestamp: new Date().toISOString(),
   statusCode,
 });
@@ -71,9 +78,11 @@ export const paginatedResponse = <T>(
   total: number,
   page: number,
   limit: number,
+  correlationId?: string,
 ): PaginatedResponse<T> => ({
   success: true,
   data,
+  correlation_id: correlationId || crypto.randomUUID(),
   timestamp: new Date().toISOString(),
   pagination: {
     total,

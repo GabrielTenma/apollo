@@ -5,7 +5,6 @@ import {
   SendMessageOptions,
   TelegramMessage,
 } from './interfaces/telegram.interface';
-import { ApiResponse } from '../common/utils/response.util';
 
 /**
  * Controller for Telegram bot operations.
@@ -41,7 +40,7 @@ export class TelegramController {
   async webhook(
     @Body() update: TelegramUpdate,
     @Headers('X-Telegram-Bot-Api-Secret-Token') secretToken?: string,
-  ): Promise<ApiResponse> {
+  ): Promise<any> {
     this.logger.log(`Received update: ${update.update_id}`);
 
     try {
@@ -50,11 +49,7 @@ export class TelegramController {
         await this.handleMessage(update.message);
       }
 
-      return {
-        success: true,
-        data: { processed: true },
-        timestamp: new Date().toISOString(),
-      };
+      return { processed: true };
     } catch (error) {
       this.logger.error('Webhook processing failed:', error);
       throw error;
@@ -75,17 +70,10 @@ export class TelegramController {
    * }
    */
   @Post('send-message')
-  async sendMessage(
-    @Body() options: SendMessageOptions,
-  ): Promise<ApiResponse> {
+  async sendMessage(@Body() options: SendMessageOptions): Promise<any> {
     this.logger.log(`Send message request to chat: ${options.chat_id}`);
     try {
-      const result = await this.telegramService.sendMessage(options);
-      return {
-        success: true,
-        data: result,
-        timestamp: new Date().toISOString(),
-      };
+      return await this.telegramService.sendMessage(options);
     } catch (error) {
       this.logger.error('Send message failed:', error);
       throw error;
@@ -112,15 +100,10 @@ export class TelegramController {
     @Body('chatId') chatId: number | string,
     @Body('text') text: string,
     @Body('parseMode') parseMode?: 'Markdown' | 'MarkdownV2' | 'HTML',
-  ): Promise<ApiResponse> {
+  ): Promise<any> {
     this.logger.log(`Send text request to chat: ${chatId}`);
     try {
-      const result = await this.telegramService.sendText(chatId, text, parseMode);
-      return {
-        success: true,
-        data: result,
-        timestamp: new Date().toISOString(),
-      };
+      return await this.telegramService.sendText(chatId, text, parseMode);
     } catch (error) {
       this.logger.error('Send text failed:', error);
       throw error;
@@ -135,15 +118,10 @@ export class TelegramController {
    * GET /telegram/bot-info
    */
   @Get('bot-info')
-  async getBotInfo(): Promise<ApiResponse> {
+  async getBotInfo(): Promise<any> {
     this.logger.log('Getting bot info');
     try {
-      const result = await this.telegramService.getMe();
-      return {
-        success: true,
-        data: result,
-        timestamp: new Date().toISOString(),
-      };
+      return await this.telegramService.getMe();
     } catch (error) {
       this.logger.error('Get bot info failed:', error);
       throw error;
@@ -167,15 +145,11 @@ export class TelegramController {
   async setWebhook(
     @Body('url') url: string,
     @Body('secretToken') secretToken?: string,
-  ): Promise<ApiResponse> {
+  ): Promise<any> {
     this.logger.log(`Setting webhook to: ${url}`);
     try {
       const result = await this.telegramService.setWebhook(url, secretToken);
-      return {
-        success: true,
-        data: { success: result },
-        timestamp: new Date().toISOString(),
-      };
+      return { success: result };
     } catch (error) {
       this.logger.error('Set webhook failed:', error);
       throw error;
@@ -190,15 +164,10 @@ export class TelegramController {
    * GET /telegram/webhook-info
    */
   @Get('webhook-info')
-  async getWebhookInfo(): Promise<ApiResponse> {
+  async getWebhookInfo(): Promise<any> {
     this.logger.log('Getting webhook info');
     try {
-      const result = await this.telegramService.getWebhookInfo();
-      return {
-        success: true,
-        data: result,
-        timestamp: new Date().toISOString(),
-      };
+      return await this.telegramService.getWebhookInfo();
     } catch (error) {
       this.logger.error('Get webhook info failed:', error);
       throw error;
@@ -210,12 +179,8 @@ export class TelegramController {
    * @returns Health status
    */
   @Get('health')
-  async healthCheck(): Promise<ApiResponse> {
-    return {
-      success: true,
-      data: { status: 'ok', service: 'telegram' },
-      timestamp: new Date().toISOString(),
-    };
+  async healthCheck(): Promise<any> {
+    return { status: 'ok', service: 'telegram' };
   }
 
   /**
