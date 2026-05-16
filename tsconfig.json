@@ -22,5 +22,5 @@
     // Include type definitions for Node.js and Jest (used in e2e tests)
     "types": ["node", "jest"]
   },
-  "exclude": ["src/web"]
+  "exclude": ["src/web", "vite.config.ts"]
 }

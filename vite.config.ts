@@ -8,7 +8,7 @@ export default defineConfig({
   root: 'src/web',
   base: '/',
   server: {
-    port: 3000,
+    port: 3001,
   },
   build: {
     outDir: 'dist-web',
