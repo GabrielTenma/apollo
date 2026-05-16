@@ -11,7 +11,7 @@ export default defineConfig({
     port: 3001,
   },
   build: {
-    outDir: 'dist-web',
+    outDir: path.resolve(__dirname, 'dist', 'web'),
     emptyOutDir: true,
   },
   resolve: {
