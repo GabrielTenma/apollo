@@ -22,8 +22,6 @@ Basically this app just collect data from trusted platform who updates related e
 
 For the future plan focusing integrate to stackyrd pkg which `diameter-tscd` project, frontend and manageable web-content.
 
-To see a `sequence diagram` complete, click <a href="https://sequencediagram.org/index.html#initialData=C4S2BsFMAIEMAcD25yIFBoMbhJAdsALQB8CyqAXAE6QCOArpAM7AXQD0CI7AbgIztM5SJmCIqaMikQl4VRDxAATSFWgBBCkJQjg0JbGCxoIAqryGQiC+GgAjGrADWpgObQ8kAO5NoAMmhQTCdVSSRpWXlFFTUAIS1hUX1DY3BDZj1PH2gAM3oUaBZxAE8w8hliRHh8eXpgVTYaBgy2YCpYPCY0+uhtKFFIJWSjNCqaxDrVEilKaBomJE7IVvbO7sHh2DQ8RB6FVThw2cxYTAALN0CzmHn84AxsXAIAHkIZxGpmRaZluchYAx2KD6RCYegAW3w922uxg+zU70aE1AnmgqCqhWqmBAOVwQ1AkLKERITFBIFg4DYPzwQx2oFxJ1A1n8vWs9QIQA">here</a>.
-
 ## Getting Started
 
 ### Prerequisites
@@ -185,6 +183,62 @@ erDiagram
         timestamptz created_at
         timestamptz updated_at
     }
+```
+
+## Sequence
+
+```mermaid
+sequenceDiagram
+    participant SR as ScraperRoutineService
+    participant FJ as FinancialJuice Target
+    participant YF as YahooFinance Target
+    participant CMC as CoinmarketCap Target
+    participant MS as MemoryKeyStore
+    participant OR as OpenrouterRoutineService
+    participant FA as FinancialAgentService
+    participant ORS as OpenRouter AI
+    participant TY as PostgreSQL (TypeORM)
+    participant CT as ScraperController
+    participant OC as OpenrouterController
+    participant FB as React Frontend
+
+    loop Every 20s (wait mode)
+        SR->>FJ: scrapeMultiple() — FinancialJuice
+        SR->>YF: scrapeMultiple() — YahooFinance
+        SR->>CMC: scrapeMultiple() — CoinmarketCap
+
+        FJ-->>SR: NewsItem[]
+        YF-->>SR: YahooNewsItem[]
+        CMC-->>SR: CoinData[]
+
+        SR->>MS: set('financialjuice', data)
+        SR->>MS: set('yahoofinance', data)
+        SR->>MS: set('coinmarketcap', data)
+    end
+
+    Note over OR,MS: Triggered when all 3 sources<br>are present in MemoryKeyStore
+
+    OR->>MS: get('financialjuice')
+    OR->>MS: get('yahoofinance')
+    OR->>MS: get('coinmarketcap')
+    MS-->>OR: cached data
+
+    OR->>FA: analyse(promptConfig with all 3 sources)
+    FA->>ORS: POST /chat/completions (free model)
+    ORS-->>FA: Markdown analysis
+    FA-->>OR: completion string
+
+    OR->>TY: save ScrapedDataEntity(status='result')
+
+    FB->>OC: GET /api/v1/openrouter/completion
+    OC->>TY: find latest ScrapedDataEntity
+    TY-->>OC: result rows
+    OC-->>FB: JSON { analysis, timestamp }
+
+    FB->>CT: GET /api/v1/scraper/financialjuice
+    CT->>MS: get('financialjuice')
+    MS-->>CT: cached data
+    CT-->>FB: JSON news items
 ```
 
 ## License
