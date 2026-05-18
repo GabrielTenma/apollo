@@ -83,13 +83,14 @@ export class OpenrouterRoutineService implements OnModuleInit {
           );
           await this.scrapedDataRepository.save(scrapedData);
 
-          this.routineTime = 100000;
+          // adjust routine time
+          this.routineTime = 150000;
         } else {
           this.logger.log(`Not ready yet! skipped.`);
           this.routineTime = 20000;
         }
       },
-      this.routineTime, // 600,000 ms = 10 minutes - individual interval for this routine
+      this.routineTime, // example 600,000 ms = 10 minutes - individual interval for this routine
     );
 
     this.logger.log(

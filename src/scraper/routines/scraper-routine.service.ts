@@ -14,6 +14,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 @Injectable()
 export class ScraperRoutineService implements OnModuleInit {
   private readonly logger = new Logger(ScraperRoutineService.name);
+  private routineTime = 20000;
 
   constructor(
     private readonly routineService: RoutineService,
@@ -120,9 +121,14 @@ export class ScraperRoutineService implements OnModuleInit {
         // ]);
         // await this.scrapedDataRepository.save(scrapedData);
 
+        // adjust routine time
+        if (this.routineTime < 100000) {
+          this.routineTime = 100000;
+        }
+
         this.logger.log(`scrape routine done ${scrapeAllResult.length}`);
       },
-      20000, // 600,000 ms = 10 minutes - individual interval for this routine
+      this.routineTime, // example 600,000 ms = 10 minutes - individual interval for this routine
     );
 
     this.logger.log(
