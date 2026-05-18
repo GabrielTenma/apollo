@@ -1,13 +1,16 @@
 name: Playwright Tests
 on:
   push:
-    branches: [ main, master ]
+    branches: [ main, master, development ]
   pull_request:
     branches: [ main, master ]
 jobs:
   test:
     timeout-minutes: 60
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [lts/*]
     steps:
     - uses: actions/checkout@v4
     - uses: actions/setup-node@v4
@@ -15,8 +18,19 @@ jobs:
         node-version: lts/*
     - name: Install dependencies
       run: npm ci --legacy-peer-deps
+    - name: Cache Playwright Browsers
+      uses: actions/cache@v4
+      with:
+        path: ~/.cache/ms-playwright
+        key: playwright-${{ runner.os }}-${{ matrix.node-version }}-${{ hashFiles('**/package-lock.json') }}
+        restore-keys: |
+          playwright-${{ runner.os }}-${{ matrix.node-version }}-
+
     - name: Install Playwright Browsers
-      run: npx playwright install --with-deps --legacy-peer-deps
+      # On cache-hit `playwright install` is a near-instant no-op.
+      # `--with-deps` runs apt-get; the condition below skips it on a warm cache
+      # because the cached-dir check succeeds before the ssh-agent step.
+      run: if [ -d "$HOME/.cache/ms-playwright" ]; then npx playwright install; else npx playwright install --with-deps; fi
     - name: Run Playwright tests
       run: npx playwright test
     - uses: actions/upload-artifact@v4

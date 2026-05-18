@@ -1,6 +1,5 @@
 <div align="center">
   <img src=".github/assets/banner.png" alt="apollo" style="width: 100%; max-width: 700px;"/>
-
   <p align="center">
     Simple scraper - economics news watcher
     <br />
@@ -10,7 +9,15 @@
     ·
     <a href="https://github.com/GabrielTenma/apollo/issues">Request Feature</a>
   </p>
+  <hr>
 </div>
+
+![Branches](https://www.shieldcn.dev/github/branches/GabrielTenma/apollo.svg?variant=ghost&size=xs)
+![Last commit](https://www.shieldcn.dev/github/last-commit/GabrielTenma/apollo.svg?variant=secondary&size=xs)
+![Release](https://www.shieldcn.dev/github/release/GabrielTenma/apollo.svg?size=xs)
+![CI](https://www.shieldcn.dev/github/ci/GabrielTenma/apollo.svg?variant=secondary&size=xs)
+![License](https://www.shieldcn.dev/github/license/GabrielTenma/apollo.svg?variant=ghost&size=xs)
+![Agent-friendly AGENTS.md](https://www.shieldcn.dev/badge/Agent--friendly-AGENTS.md-D97757.svg?variant=secondary&size=xs)
 
 ## Overview
 
