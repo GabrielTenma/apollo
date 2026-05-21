@@ -1,6 +1,7 @@
 import { Module, Provider } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { APP_INTERCEPTOR, APP_FILTER } from '@nestjs/core';
+import { EvlogModule } from 'evlog/nestjs';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { CommonModule } from './common/common.module';
@@ -36,6 +37,7 @@ const filters: Provider[] = [
       envFilePath: '.env',
       load: [openRouterConfig, telegramConfig, supabaseConfig],
     }),
+    EvlogModule.forRoot(),
     CommonModule,
     AuthModule,
     ScraperModule,
