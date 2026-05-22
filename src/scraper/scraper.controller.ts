@@ -22,7 +22,10 @@ import {
 } from '../common/utils/response.util';
 import { FinancialJuiceTarget, NewsItem } from './target/financialjuice.target';
 import { CoinData, CoinmarketCapTarget } from './target/coinmarketcap.target';
-import { YahooFinanceTarget, YahooNewsItem } from './target/yahoofinance.target';
+import {
+  YahooFinanceTarget,
+  YahooNewsItem,
+} from './target/yahoofinance.target';
 import { Public } from '../common/decorators/public.decorator';
 import {
   APP_CONSTANTS,
@@ -125,7 +128,10 @@ export class ScraperController {
         timestamp: new Date().toISOString(),
       };
     } catch (error) {
-      this.logger.error(`Structured extraction failed for ${url}:`, error as Error);
+      this.logger.error(
+        `Structured extraction failed for ${url}:`,
+        error as Error,
+      );
       throw error;
     }
   }
@@ -193,7 +199,9 @@ export class ScraperController {
   @Get('sources/:id')
   async getSource(@Param('id') id: string): Promise<ScrapingSourceEntity> {
     this.logger.verbose(`Getting scraping source: ${id}`);
-    const source = await this.scrapingSourceRepository.findOne({ where: { id } });
+    const source = await this.scrapingSourceRepository.findOne({
+      where: { id },
+    });
     if (!source) {
       throw new Error('Scraping source not found');
     }

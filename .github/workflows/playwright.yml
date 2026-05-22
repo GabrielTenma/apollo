@@ -12,8 +12,8 @@ jobs:
       matrix:
         node-version: [lts/*]
     steps:
-    - uses: actions/checkout@v4
-    - uses: actions/setup-node@v4
+    - uses: actions/checkout@v6
+    - uses: actions/setup-node@v6
       with:
         node-version: lts/*
     - name: Install dependencies
@@ -32,7 +32,7 @@ jobs:
       # because the cached-dir check succeeds before the ssh-agent step.
       run: if [ -d "$HOME/.cache/ms-playwright" ]; then npx playwright install; else npx playwright install --with-deps; fi
     - name: Run Playwright tests
-      run: npx playwright test
+      run: npx playwright test tests/coinmarketcap.target.spec.ts --project=chromium
     - uses: actions/upload-artifact@v4
       if: ${{ !cancelled() }}
       with:

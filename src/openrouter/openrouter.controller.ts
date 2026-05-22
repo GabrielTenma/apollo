@@ -68,7 +68,7 @@ export class OpenRouterController {
    */
   @Get('models')
   @Roles('admin', 'moderator')
-   async listModels(): Promise<any> {
+  async listModels(): Promise<any> {
     this.logger.verbose('Listing available models');
     try {
       return await this.openRouterService.listModels();

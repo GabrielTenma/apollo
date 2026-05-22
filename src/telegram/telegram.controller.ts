@@ -127,7 +127,9 @@ export class TelegramController {
    */
   private async handleMessage(message: TelegramMessage): Promise<void> {
     if (message.text) {
-      this.logger.verbose(`Received message: ${message.text.substring(0, 50)}...`);
+      this.logger.verbose(
+        `Received message: ${message.text.substring(0, 50)}...`,
+      );
       if (message.text.startsWith('/start')) {
         await this.telegramService.sendText(
           message.chat.id,

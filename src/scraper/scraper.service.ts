@@ -209,7 +209,11 @@ export class ScraperService {
       return result;
     } catch (error) {
       await context.close();
-      this.logger.error({ step: 'scrape', url: options.url, error: String(error) });
+      this.logger.error({
+        step: 'scrape',
+        url: options.url,
+        error: String(error),
+      });
       throw error;
     }
   }
@@ -439,7 +443,10 @@ export class ScraperService {
     if (this.browser) {
       await this.browser.close();
       this.browser = null;
-      this.logger.verbose({ action: 'close-browser', message: 'Browser closed' });
+      this.logger.verbose({
+        action: 'close-browser',
+        message: 'Browser closed',
+      });
     }
   }
 }
