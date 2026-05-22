@@ -9,9 +9,9 @@ import { createClient, SupabaseClient } from '@supabase/supabase-js';
  */
 @Injectable()
 export class SupabaseService {
-  private readonly logger = new Logger(SupabaseService.name);
   private readonly clients: Map<string, SupabaseClient> = new Map();
   private defaultClient?: SupabaseClient;
+  private readonly logger = new Logger(SupabaseService.name);
 
   constructor(private readonly commonConfig: CommonConfigService) {
     this.initializeClients();
@@ -64,10 +64,7 @@ export class SupabaseService {
     const client = this.getClient(connection);
     const { data: result, error } = await client.from(table).insert(data);
     if (error) {
-      this.logger.error(
-        `Supabase create error on connection ${connection}`,
-        error,
-      );
+      this.logger.error(`Supabase create error on connection ${connection}`);
       throw error;
     }
     return result;
@@ -85,10 +82,7 @@ export class SupabaseService {
     }
     const { data, error } = await query;
     if (error) {
-      this.logger.error(
-        `Supabase read error on connection ${connection}`,
-        error,
-      );
+      this.logger.error(`Supabase read error on connection ${connection}`);
       throw error;
     }
     return data;
@@ -106,10 +100,7 @@ export class SupabaseService {
       .update(data)
       .eq('id', id);
     if (error) {
-      this.logger.error(
-        `Supabase update error on connection ${connection}`,
-        error,
-      );
+      this.logger.error(`Supabase update error on connection ${connection}`);
       throw error;
     }
     return result;
@@ -126,10 +117,7 @@ export class SupabaseService {
       .delete()
       .eq('id', id);
     if (error) {
-      this.logger.error(
-        `Supabase delete error on connection ${connection}`,
-        error,
-      );
+      this.logger.error(`Supabase delete error on connection ${connection}`);
       throw error;
     }
     return result;

@@ -7,6 +7,7 @@ import {
   Logger,
 } from '@nestjs/common';
 import { Request, Response } from 'express';
+import * as crypto from 'crypto';
 
 /**
  * Global HTTP exception filter that catches all exceptions (HTTP and non-HTTP)

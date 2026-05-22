@@ -1,11 +1,11 @@
 import { Injectable, Logger } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import {
   ChatCompletionOptions,
   ChatCompletionResponse,
   OpenRouterConfig,
   OpenRouterModel,
 } from './interfaces/openrouter.interface';
-import { ConfigService } from '@nestjs/config';
 
 /**
  * OpenRouter service for interacting with OpenRouter API.
@@ -14,8 +14,8 @@ import { ConfigService } from '@nestjs/config';
  */
 @Injectable()
 export class OpenRouterService {
-  private readonly logger = new Logger(OpenRouterService.name);
   private readonly apiKey: string;
+  private readonly logger = new Logger(OpenRouterService.name);
   private readonly baseUrl: string;
   private readonly defaultModel: string;
   private readonly timeout: number;
@@ -31,10 +31,6 @@ export class OpenRouterService {
     this.timeout = +(
       this.configService.get<string>('OPENROUTER_TIMEOUT') || '30000'
     );
-
-    if (!this.apiKey) {
-      this.logger.warn('OpenRouter API key not configured');
-    }
   }
 
   /**
@@ -47,9 +43,11 @@ export class OpenRouterService {
   ): Promise<ChatCompletionResponse> {
     const startTime = Date.now();
 
-    try {
-      this.logger.log(`Creating chat completion with model: ${options.model}`);
+    this.logger.verbose({
+      openrouter: { model: options.model || this.defaultModel },
+    });
 
+    try {
       const response = await fetch(`${this.baseUrl}/chat/completions`, {
         method: 'POST',
         headers: {
@@ -75,20 +73,27 @@ export class OpenRouterService {
 
       if (!response.ok) {
         const errorText = await response.text();
-        throw new Error(
-          `OpenRouter API error: ${response.status} - ${errorText}`,
-        );
+        const error = new Error(`OpenRouter API error: ${response.status}`);
+        this.logger.error({
+          step: 'openrouter-api',
+          message: `OpenRouter API error: ${response.status}`,
+          details: errorText,
+        });
+        throw error;
       }
 
       const result: ChatCompletionResponse = await response.json();
 
-      this.logger.log(
-        `Chat completion successful in ${Date.now() - startTime}ms`,
-      );
+      this.logger.verbose({
+        openrouter: {
+          model: options.model || this.defaultModel,
+          duration: Date.now() - startTime,
+        },
+      });
 
       return result;
     } catch (error) {
-      this.logger.error('Chat completion failed:', error);
+      this.logger.error({ step: 'chat-completion', error: String(error) });
       throw error;
     }
   }
@@ -99,8 +104,6 @@ export class OpenRouterService {
    */
   async listModels(): Promise<OpenRouterModel[]> {
     try {
-      this.logger.log('Fetching available models from OpenRouter');
-
       const response = await fetch(`${this.baseUrl}/models`, {
         method: 'GET',
         headers: {
@@ -112,15 +115,19 @@ export class OpenRouterService {
 
       if (!response.ok) {
         const errorText = await response.text();
-        throw new Error(
-          `OpenRouter API error: ${response.status} - ${errorText}`,
-        );
+        const error = new Error(`OpenRouter API error: ${response.status}`);
+        this.logger.error({
+          step: 'list-models',
+          message: `OpenRouter API error: ${response.status}`,
+          details: errorText,
+        });
+        throw error;
       }
 
       const data = await response.json();
       return data.data || [];
     } catch (error) {
-      this.logger.error('Failed to list models:', error);
+      this.logger.error({ step: 'list-models', error: String(error) });
       throw error;
     }
   }
