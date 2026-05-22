@@ -38,7 +38,7 @@ export class TelegramService {
    */
   async sendMessage(options: SendMessageOptions): Promise<TelegramMessage> {
     try {
-      this.logger.log(`Sending message to chat: ${options.chat_id}`);
+      this.logger.verbose(`Sending message to chat: ${options.chat_id}`);
 
       const response = await this.makeRequest<TelegramMessage>('sendMessage', {
         chat_id: options.chat_id,
@@ -65,7 +65,7 @@ export class TelegramService {
    */
   async getMe(): Promise<TelegramUser> {
     try {
-      this.logger.log('Getting bot information');
+      this.logger.verbose('Getting bot information');
       return await this.makeRequest<TelegramUser>('getMe');
     } catch (error) {
       this.logger.error('Failed to get bot info:', error);
@@ -81,7 +81,7 @@ export class TelegramService {
    */
   async setWebhook(url: string, secretToken?: string): Promise<boolean> {
     try {
-      this.logger.log(`Setting webhook to: ${url}`);
+      this.logger.verbose(`Setting webhook to: ${url}`);
 
       await this.makeRequest('setWebhook', {
         url,
@@ -101,7 +101,7 @@ export class TelegramService {
    */
   async getWebhookInfo(): Promise<Record<string, unknown>> {
     try {
-      this.logger.log('Getting webhook info');
+      this.logger.verbose('Getting webhook info');
       return await this.makeRequest('getWebhookInfo');
     } catch (error) {
       this.logger.error('Failed to get webhook info:', error);
@@ -115,7 +115,7 @@ export class TelegramService {
    */
   async deleteWebhook(): Promise<boolean> {
     try {
-      this.logger.log('Deleting webhook');
+      this.logger.verbose('Deleting webhook');
       await this.makeRequest('deleteWebhook');
       return true;
     } catch (error) {

@@ -31,7 +31,7 @@ export class SupabaseController {
 
   @Post('create')
   async create(@Body() dto: CreateRecordDto): Promise<any> {
-    this.logger.log(`Create record in ${dto.table}`);
+    this.logger.verbose(`Create record in ${dto.table}`);
     return this.supabaseService.create(dto.table, dto.data);
   }
 
@@ -40,13 +40,13 @@ export class SupabaseController {
     @Param('table') table: string,
     @Body() dto: { filter?: any } = {},
   ): Promise<any> {
-    this.logger.log(`Read records from ${table}`);
+    this.logger.verbose(`Read records from ${table}`);
     return this.supabaseService.read(table, dto.filter);
   }
 
   @Put('update')
   async update(@Body() dto: UpdateRecordDto): Promise<any> {
-    this.logger.log(`Update record in ${dto.table}`);
+    this.logger.verbose(`Update record in ${dto.table}`);
     return this.supabaseService.update(dto.table, dto.id, dto.data);
   }
 
@@ -54,7 +54,7 @@ export class SupabaseController {
   async delete(
     @Body() dto: { table: string; id: string | number },
   ): Promise<any> {
-    this.logger.log(`Delete record from ${dto.table}`);
+    this.logger.verbose(`Delete record from ${dto.table}`);
     return this.supabaseService.delete(dto.table, dto.id);
   }
 }

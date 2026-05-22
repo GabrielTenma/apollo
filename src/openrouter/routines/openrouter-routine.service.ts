@@ -1,4 +1,4 @@
-import { Inject, Injectable, Logger, OnModuleInit } from '@nestjs/common';
+import { Inject, Injectable, OnModuleInit, Logger } from '@nestjs/common';
 import { RoutineService } from '../../common/routines/services/routine.service';
 import {
   APP_CONSTANTS,
@@ -26,7 +26,7 @@ export class OpenrouterRoutineService implements OnModuleInit {
   onModuleInit() {
     // Only set up routines if globally enabled
     if (!this.routineService.isEnabled()) {
-      this.logger.log('Routines are disabled globally, skipping setup');
+      this.logger.verbose('Routines are disabled globally, skipping setup');
       return;
     }
 
@@ -34,7 +34,7 @@ export class OpenrouterRoutineService implements OnModuleInit {
     this.routineService.startRoutine(
       'openrouter-routine',
       async () => {
-        this.logger.log('Scraper collector routine executed');
+        this.logger.verbose('Scraper collector routine executed');
 
         // fill value
         const financialJuice =
@@ -86,14 +86,14 @@ export class OpenrouterRoutineService implements OnModuleInit {
           // adjust routine time
           this.routineTime = 150000;
         } else {
-          this.logger.log(`Not ready yet! skipped.`);
+          this.logger.verbose(`Not ready yet! skipped.`);
           this.routineTime = 20000;
         }
       },
       this.routineTime, // example 600,000 ms = 10 minutes - individual interval for this routine
     );
 
-    this.logger.log(
+    this.logger.verbose(
       `Started ${
         this.routineService.getRunningRoutines().length
       } collector routines`,
@@ -105,7 +105,7 @@ export class OpenrouterRoutineService implements OnModuleInit {
    */
   async runManually(name: string): Promise<void> {
     await this.routineService.executeRoutine(name, async () => {
-      this.logger.log('Manual scraper routine executed');
+      this.logger.verbose('Manual scraper routine executed');
     });
   }
 }

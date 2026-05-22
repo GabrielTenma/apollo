@@ -19,7 +19,7 @@
     "noFallthroughCasesInSwitch": false,
     "jsx": "react-jsx",
     "esModuleInterop": true,
-    // Include type definitions for Node.js and Jest (used in e2e tests)
+    "skipDefaultLibCheck": true,
     "types": ["node", "jest"]
   },
   "exclude": ["node_modules", "test", "src/web", "vite.config.ts"]

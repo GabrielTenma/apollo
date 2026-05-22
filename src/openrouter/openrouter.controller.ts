@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Get, Logger, Inject } from '@nestjs/common';
+import { Controller, Post, Body, Get, Inject, Logger } from '@nestjs/common';
 import { OpenRouterService } from './openrouter.service';
 import {
   ChatCompletionOptions,
@@ -50,7 +50,7 @@ export class OpenRouterController {
   async createChatCompletion(
     @Body() options: ChatCompletionOptions,
   ): Promise<any> {
-    this.logger.log(`Chat completion request with model: ${options.model}`);
+    this.logger.verbose(`Chat completion request with model: ${options.model}`);
     try {
       return await this.openRouterService.createChatCompletion(options);
     } catch (error) {
@@ -68,8 +68,8 @@ export class OpenRouterController {
    */
   @Get('models')
   @Roles('admin', 'moderator')
-  async listModels(): Promise<any> {
-    this.logger.log('Listing available models');
+   async listModels(): Promise<any> {
+    this.logger.verbose('Listing available models');
     try {
       return await this.openRouterService.listModels();
     } catch (error) {
@@ -100,7 +100,7 @@ export class OpenRouterController {
     @Body('model') model?: string,
     @Body('systemPrompt') systemPrompt?: string,
   ): Promise<any> {
-    this.logger.log(`Simple chat request: ${prompt.substring(0, 50)}...`);
+    this.logger.verbose(`Simple chat request: ${prompt.substring(0, 50)}...`);
     try {
       const response = await this.openRouterService.chat(
         prompt,
@@ -127,7 +127,7 @@ export class OpenRouterController {
   @Public()
   @Get('completion')
   async completion(): Promise<any> {
-    this.logger.log(`Requested to get routine completion`);
+    this.logger.verbose(`Requested to get routine completion`);
 
     type Content = {
       name: string;

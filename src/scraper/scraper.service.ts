@@ -86,9 +86,9 @@ export class ScraperService {
     const context = await this.createContext(browser, options);
     const page = await context.newPage();
 
-    try {
-      this.logger.log(`Scraping: ${options.url}`);
+    this.logger.verbose({ scrape: { url: options.url, startTime } });
 
+    try {
       // Perform default popup close
       if (options.handlePopupClose) {
         await page.addLocatorHandler(
@@ -204,12 +204,12 @@ export class ScraperService {
       }
 
       await context.close();
-      this.logger.log(`Successfully scraped: ${options.url}`);
+      this.logger.verbose({ scrape: { url: options.url, success: true } });
 
       return result;
     } catch (error) {
       await context.close();
-      this.logger.error(`Failed to scrape: ${options.url}`, error);
+      this.logger.error({ step: 'scrape', url: options.url, error: String(error) });
       throw error;
     }
   }
@@ -366,10 +366,8 @@ export class ScraperService {
     throttleDelayMs = 0,
   ): Promise<ScrapeResult[]> {
     const results: ScrapeResult[] = [];
-    // Index shared among workers to fetch the next job
     let nextIndex = 0;
 
-    // Worker function that processes options sequentially while respecting the concurrency limit
     const worker = async () => {
       while (true) {
         const currentIdx = nextIndex++;
@@ -378,28 +376,29 @@ export class ScraperService {
         }
         const scrapeOptions = options[currentIdx];
 
-        // Validate URL presence
         if (!scrapeOptions.url) {
-          this.logger.error('URL is required for each scrape option');
+          this.logger.verbose({
+            step: 'validation',
+            message: 'URL is required for each scrape option',
+          });
           continue;
         }
 
         let lastError: Error | null = null;
-        // Retry logic with exponential backoff
         for (let attempt = 0; attempt <= maxRetries; attempt++) {
           try {
             const result = await this.scrape(scrapeOptions);
             results.push(result);
-            break; // success, exit retry loop
+            break;
           } catch (error) {
             lastError = error as Error;
             if (attempt < maxRetries) {
-              this.logger.warn(
-                `Retrying ${scrapeOptions.url} (attempt ${attempt + 1}/${
-                  maxRetries + 1
-                })`,
-              );
-              // Exponential backoff: 1s, 2s, 4s, ...
+              this.logger.verbose({
+                step: 'retry',
+                url: scrapeOptions.url,
+                attempt: attempt + 1,
+                maxRetries: maxRetries + 1,
+              });
               await new Promise((r) =>
                 setTimeout(r, 1000 * Math.pow(2, attempt)),
               );
@@ -408,27 +407,23 @@ export class ScraperService {
         }
 
         if (!continueOnError && lastError) {
-          // Propagate the error to abort all workers
           throw lastError;
         }
 
         if (lastError) {
-          this.logger.error(
-            `Failed to scrape ${scrapeOptions.url} after ${
-              maxRetries + 1
-            } attempts:`,
-            lastError,
-          );
+          this.logger.error({
+            step: 'scrape-multiple',
+            url: scrapeOptions.url,
+            error: lastError.message,
+          });
         }
 
-        // Optional throttle between individual scrapes
         if (throttleDelayMs > 0) {
           await new Promise((r) => setTimeout(r, throttleDelayMs));
         }
       }
     };
 
-    // Launch workers up to the concurrency limit
     const workers = Array.from(
       { length: Math.min(concurrency, options.length) },
       () => worker(),
@@ -444,7 +439,7 @@ export class ScraperService {
     if (this.browser) {
       await this.browser.close();
       this.browser = null;
-      this.logger.log('Browser closed');
+      this.logger.verbose({ action: 'close-browser', message: 'Browser closed' });
     }
   }
 }

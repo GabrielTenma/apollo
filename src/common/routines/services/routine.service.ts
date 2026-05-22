@@ -1,4 +1,4 @@
-import { Injectable, Logger, OnModuleDestroy, Inject } from '@nestjs/common';
+import { Injectable, OnModuleDestroy, Inject, Logger } from '@nestjs/common';
 import { ROUTINE_CONFIG, RoutineConfig } from '../config/routine.config.module';
 import { RoutineExecutionMode } from '../config/routine.config';
 
@@ -48,9 +48,7 @@ export class RoutineService implements OnModuleDestroy {
     routineFn: () => Promise<void>,
   ): Promise<void> {
     if (!this.isEnabled()) {
-      this.logger.debug(
-        `Routine "${routineName}" is disabled, skipping execution`,
-      );
+      this.logger.debug(`Routine "${routineName}" is disabled, skipping execution`);
       return;
     }
 
@@ -59,9 +57,7 @@ export class RoutineService implements OnModuleDestroy {
       this.getExecutionMode() === 'skip' &&
       this.isRoutineRunning(routineName)
     ) {
-      this.logger.warn(
-        `Routine "${routineName}" is still running, skipping this execution`,
-      );
+      this.logger.warn(`Routine "${routineName}" is still running, skipping this execution`);
       return;
     }
 
@@ -73,10 +69,10 @@ export class RoutineService implements OnModuleDestroy {
       await routineFn();
       this.logger.log(`Routine "${routineName}" completed successfully`);
     } catch (error: any) {
-      this.logger.error(
-        `Routine "${routineName}" failed: ${error.message}`,
-        error.stack,
-      );
+      this.logger.error({
+        message: `Routine "${routineName}" failed: ${error.message}`,
+        stack: error.stack,
+      });
       throw error;
     } finally {
       // Mark routine as not running
@@ -111,7 +107,7 @@ export class RoutineService implements OnModuleDestroy {
     this.stopRoutine(routineName);
 
     const executionMode = this.getExecutionMode();
-    this.logger.log(
+    this.logger.verbose(
       `Starting routine "${routineName}" with interval ${intervalMs}ms (mode: ${executionMode})`,
     );
 
@@ -175,7 +171,7 @@ export class RoutineService implements OnModuleDestroy {
       clearTimeout(intervalId);
       this.intervals.delete(routineName);
       this.runningRoutines.delete(routineName);
-      this.logger.log(`Stopped routine: ${routineName}`);
+      this.logger.verbose(`Stopped routine: ${routineName}`);
     }
   }
 
@@ -186,7 +182,7 @@ export class RoutineService implements OnModuleDestroy {
     for (const [name, intervalId] of this.intervals.entries()) {
       clearInterval(intervalId);
       clearTimeout(intervalId);
-      this.logger.log(`Stopped routine: ${name}`);
+      this.logger.verbose(`Stopped routine: ${name}`);
     }
     this.intervals.clear();
     this.runningRoutines.clear();
