@@ -88,6 +88,7 @@ export class ScraperController {
       );
     } catch (error) {
       this.logger.error('Multiple scrape failed:', error as Error);
+      this.logger.error('Multiple scrape failed:', error as Error);
       throw error;
     }
   }
@@ -125,7 +126,10 @@ export class ScraperController {
         timestamp: new Date().toISOString(),
       };
     } catch (error) {
-      this.logger.error(`Structured extraction failed for ${url}:`, error as Error);
+      this.logger.error(
+        `Structured extraction failed for ${url}:`,
+        error as Error,
+      );
       throw error;
     }
   }
@@ -193,7 +197,9 @@ export class ScraperController {
   @Get('sources/:id')
   async getSource(@Param('id') id: string): Promise<ScrapingSourceEntity> {
     this.logger.verbose(`Getting scraping source: ${id}`);
-    const source = await this.scrapingSourceRepository.findOne({ where: { id } });
+    const source = await this.scrapingSourceRepository.findOne({
+      where: { id },
+    });
     if (!source) {
       throw new Error('Scraping source not found');
     }
@@ -327,6 +333,7 @@ export class ScraperController {
    */
   @Get('scraped-data/:id')
   async getScrapedData(@Param('id') id: string): Promise<ScrapedDataEntity> {
+    this.logger.verbose(`Getting scraped data: ${id}`);
     this.logger.verbose(`Getting scraped data: ${id}`);
     const data = await this.scrapedDataRepository.findOne({
       where: { id },

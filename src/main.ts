@@ -3,6 +3,10 @@ import { NestExpressApplication } from '@nestjs/platform-express';
 import { AppModule } from './app.module';
 import { Logger } from '@nestjs/common';
 import { join } from 'path';
+// Bootstrap env file before NestJS loads any module that depends on config.
+// Pure CommonJS – imported with require() so top-level async/await works correctly.
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+require('./scripts/bootstrap-env');
 
 async function bootstrap() {
   Logger.log(`Apollo Watcher.`);

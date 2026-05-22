@@ -22,5 +22,5 @@
     "skipDefaultLibCheck": true,
     "types": ["node", "jest"]
   },
-  "exclude": ["node_modules", "test", "src/web", "vite.config.ts"]
+  "exclude": ["node_modules", "test", "src/web", "src/scripts", "vite.config.ts"]
 }

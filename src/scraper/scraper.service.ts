@@ -88,6 +88,8 @@ export class ScraperService {
 
     this.logger.verbose({ scrape: { url: options.url, startTime } });
 
+    this.logger.verbose({ scrape: { url: options.url, startTime } });
+
     try {
       // Perform default popup close
       if (options.handlePopupClose) {
@@ -209,7 +211,7 @@ export class ScraperService {
       return result;
     } catch (error) {
       await context.close();
-      this.logger.error({ step: 'scrape', url: options.url, error: String(error) });
+      this.logger.error(`Failed to scrape: ${options.url}`, error);
       throw error;
     }
   }
@@ -439,7 +441,7 @@ export class ScraperService {
     if (this.browser) {
       await this.browser.close();
       this.browser = null;
-      this.logger.verbose({ action: 'close-browser', message: 'Browser closed' });
+      this.logger.log('Browser closed');
     }
   }
 }
