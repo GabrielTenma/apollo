@@ -48,9 +48,7 @@ export class RoutineService implements OnModuleDestroy {
     routineFn: () => Promise<void>,
   ): Promise<void> {
     if (!this.isEnabled()) {
-      this.logger.debug(
-        `Routine "${routineName}" is disabled, skipping execution`,
-      );
+      this.logger.debug(`Routine "${routineName}" is disabled, skipping execution`);
       return;
     }
 
@@ -59,9 +57,7 @@ export class RoutineService implements OnModuleDestroy {
       this.getExecutionMode() === 'skip' &&
       this.isRoutineRunning(routineName)
     ) {
-      this.logger.warn(
-        `Routine "${routineName}" is still running, skipping this execution`,
-      );
+      this.logger.warn(`Routine "${routineName}" is still running, skipping this execution`);
       return;
     }
 

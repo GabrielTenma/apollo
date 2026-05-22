@@ -22,10 +22,7 @@ import {
 } from '../common/utils/response.util';
 import { FinancialJuiceTarget, NewsItem } from './target/financialjuice.target';
 import { CoinData, CoinmarketCapTarget } from './target/coinmarketcap.target';
-import {
-  YahooFinanceTarget,
-  YahooNewsItem,
-} from './target/yahoofinance.target';
+import { YahooFinanceTarget, YahooNewsItem } from './target/yahoofinance.target';
 import { Public } from '../common/decorators/public.decorator';
 import {
   APP_CONSTANTS,
@@ -90,6 +87,7 @@ export class ScraperController {
         maxRetries,
       );
     } catch (error) {
+      this.logger.error('Multiple scrape failed:', error as Error);
       this.logger.error('Multiple scrape failed:', error as Error);
       throw error;
     }
@@ -335,6 +333,7 @@ export class ScraperController {
    */
   @Get('scraped-data/:id')
   async getScrapedData(@Param('id') id: string): Promise<ScrapedDataEntity> {
+    this.logger.verbose(`Getting scraped data: ${id}`);
     this.logger.verbose(`Getting scraped data: ${id}`);
     const data = await this.scrapedDataRepository.findOne({
       where: { id },
