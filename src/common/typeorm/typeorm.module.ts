@@ -19,7 +19,7 @@ import { FeatureConfigEntity } from '../../supabase/entities/feature-config.enti
  * @param url - The raw DATABASE_URL string.
  * @returns One of `'postgres' | 'sqlite' | 'mysql' | 'mariadb' | 'mssql' | 'oracle'`.
  */
-function resolveDialect(url: string): string {
+function resolveDialect(url: string): 'postgres' | 'sqlite' | 'mysql' | 'mariadb' | 'mssql' | 'oracle' {
   const lower = url.toLowerCase().trim();
   if (lower.startsWith('sqlite:')) return 'sqlite';
   if (lower.startsWith('mysql:')) return 'mysql';
@@ -45,14 +45,16 @@ function resolveDialect(url: string): string {
       useFactory: (configService: ConfigService) => {
         const url = configService.get<string>('DATABASE_URL') ?? '';
         const dialect = resolveDialect(url);
-        return {
+        const base: Record<string, any> = {
           type: dialect,
           url,
           synchronize: false,
           autoLoadEntities: true,
-          // SQLite needs the database file to exist; TypeORM creates it automatically on connect.
-          ...(dialect === 'sqlite' ? { extra: { verbose: false } } : {}),
-        } as const;
+        };
+        if (dialect === 'sqlite') {
+          base.extra = { verbose: false };
+        }
+        return base;
       },
     }),
     TypeOrmModule.forFeature([
