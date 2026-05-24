@@ -1,5 +1,4 @@
-import { registerAs } from '@nestjs/config';
-import { ConfigService } from '@nestjs/config';
+import { ConfigService, registerAs } from '@nestjs/config';
 import { CommonConfigService } from '../../common/config/config.service';
 
 // Instantiate CommonConfigService using Nest's ConfigService to access environment variables.

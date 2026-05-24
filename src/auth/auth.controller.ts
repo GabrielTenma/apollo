@@ -1,11 +1,11 @@
-import { Controller, Post, Body, UseGuards, Get, Req } from '@nestjs/common';
+import { Body, Controller, Get, Post, Req, UseGuards } from '@nestjs/common';
 import { Request } from 'express';
-import { AuthService } from './auth.service';
-import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
-import { Roles } from '../common/decorators/roles.decorator';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
-import { JwtPayload } from './strategies/jwt.strategy';
 import { Public } from '../common/decorators/public.decorator';
+import { Roles } from '../common/decorators/roles.decorator';
+import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
+import { AuthService } from './auth.service';
+import { JwtPayload } from './strategies/jwt.strategy';
 
 class LoginDto {
   email: string;

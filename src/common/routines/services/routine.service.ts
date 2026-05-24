@@ -1,6 +1,6 @@
-import { Injectable, OnModuleDestroy, Inject, Logger } from '@nestjs/common';
-import { ROUTINE_CONFIG, RoutineConfig } from '../config/routine.config.module';
+import { Inject, Injectable, Logger, OnModuleDestroy } from '@nestjs/common';
 import { RoutineExecutionMode } from '../config/routine.config';
+import { ROUTINE_CONFIG, RoutineConfig } from '../config/routine.config.module';
 
 /**
  * Service for executing routines based on configuration.
@@ -13,7 +13,6 @@ export class RoutineService implements OnModuleDestroy {
   private readonly logger = new Logger(RoutineService.name);
   private readonly intervals = new Map<string, NodeJS.Timeout>();
   private readonly runningRoutines = new Map<string, boolean>();
-  private readonly abortControllers = new Map<string, AbortController>();
 
   constructor(@Inject(ROUTINE_CONFIG) private readonly config: RoutineConfig) {}
 
@@ -48,7 +47,9 @@ export class RoutineService implements OnModuleDestroy {
     routineFn: () => Promise<void>,
   ): Promise<void> {
     if (!this.isEnabled()) {
-      this.logger.debug(`Routine "${routineName}" is disabled, skipping execution`);
+      this.logger.debug(
+        `Routine "${routineName}" is disabled, skipping execution`,
+      );
       return;
     }
 
@@ -57,7 +58,9 @@ export class RoutineService implements OnModuleDestroy {
       this.getExecutionMode() === 'skip' &&
       this.isRoutineRunning(routineName)
     ) {
-      this.logger.warn(`Routine "${routineName}" is still running, skipping this execution`);
+      this.logger.warn(
+        `Routine "${routineName}" is still running, skipping this execution`,
+      );
       return;
     }
 
@@ -135,7 +138,7 @@ export class RoutineService implements OnModuleDestroy {
 
         try {
           await this.executeRoutine(routineName, routineFn);
-        } catch (error) {
+        } catch (_error) {
           // Error already logged in executeRoutine
         } finally {
           // Schedule next execution after completion

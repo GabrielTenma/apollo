@@ -1,4 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { TelegramChatEntity } from './telegram-chat.entity';
 import { TelegramUpdateEntity } from './telegram-update.entity';
 
@@ -22,9 +22,15 @@ export class TelegramBotEntity {
   @Column({ type: 'jsonb', default: {} })
   config: any;
 
-  @OneToMany(() => TelegramChatEntity, (chat) => chat.bot)
+  @OneToMany(
+    () => TelegramChatEntity,
+    (chat) => chat.bot,
+  )
   chats: TelegramChatEntity[];
 
-  @OneToMany(() => TelegramUpdateEntity, (update) => update.bot)
+  @OneToMany(
+    () => TelegramUpdateEntity,
+    (update) => update.bot,
+  )
   updates: TelegramUpdateEntity[];
 }

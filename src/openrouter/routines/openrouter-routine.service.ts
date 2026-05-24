@@ -1,15 +1,15 @@
-import { Inject, Injectable, OnModuleInit, Logger } from '@nestjs/common';
+import * as crypto from 'node:crypto';
+import { Inject, Injectable, Logger, OnModuleInit } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 import { RoutineService } from '../../common/routines/services/routine.service';
 import {
   APP_CONSTANTS,
-  appConstants,
   AppConstants,
+  appConstants,
 } from '../../constants/app.constants';
-import { FinancialAgentService } from '../agents/financial.agent';
 import { ScrapedDataEntity } from '../../supabase/entities/scraped-data.entity';
-import * as crypto from 'crypto';
-import { Repository } from 'typeorm';
-import { InjectRepository } from '@nestjs/typeorm';
+import { FinancialAgentService } from '../agents/financial.agent';
 
 @Injectable()
 export class OpenrouterRoutineService implements OnModuleInit {
@@ -20,7 +20,7 @@ export class OpenrouterRoutineService implements OnModuleInit {
     private readonly financialAgentService: FinancialAgentService,
     @InjectRepository(ScrapedDataEntity)
     private readonly scrapedDataRepository: Repository<ScrapedDataEntity>,
-    @Inject(APP_CONSTANTS) private readonly constants: AppConstants,
+    @Inject(APP_CONSTANTS) readonly _constants: AppConstants,
   ) {}
 
   onModuleInit() {
@@ -43,14 +43,14 @@ export class OpenrouterRoutineService implements OnModuleInit {
           appConstants.scrapedContentStore.get('yahoofinance');
         const coinmarketCap =
           appConstants.scrapedContentStore.get('coinmarketcap');
-        const completionPrev = appConstants.scrapedContentStore.get(
+        const _completionPrev = appConstants.scrapedContentStore.get(
           'completion-previous',
         );
 
         const isStoreHasContents =
-          financialJuice != undefined &&
-          yahooFinance != undefined &&
-          coinmarketCap != undefined;
+          financialJuice !== undefined &&
+          yahooFinance !== undefined &&
+          coinmarketCap !== undefined;
 
         // execute by condition
         if (isStoreHasContents) {

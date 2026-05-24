@@ -6,11 +6,11 @@
  */
 
 import { Injectable } from '@nestjs/common';
-import { OpenRouterService } from '../openrouter.service';
 import {
   ChatCompletionOptions,
   ChatMessage,
 } from '../interfaces/openrouter.interface';
+import { OpenRouterService } from '../openrouter.service';
 
 @Injectable()
 export class ExampleService {

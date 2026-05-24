@@ -1,4 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { ScrapedDataEntity } from './scraped-data.entity';
 
 @Entity({ name: 'scraping_sources' })
@@ -24,6 +24,9 @@ export class ScrapingSourceEntity {
   @Column({ type: 'timestamptz', default: () => 'now()' })
   created_at: Date;
 
-  @OneToMany(() => ScrapedDataEntity, (data) => data.source)
+  @OneToMany(
+    () => ScrapedDataEntity,
+    (data) => data.source,
+  )
   scrapedData: ScrapedDataEntity[];
 }

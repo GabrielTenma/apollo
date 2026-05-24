@@ -7,12 +7,11 @@
 # Dependencies
 node_modules/
 
-# Secrets — keep production .env out, allow .env.example in
-.env.local
-.env.*.local
-.env.production
-.env.development
-.env.test
+# Secrets — NEVER bake any real .env into the image.
+# All configuration must be supplied at `docker run` time via --env-file or -e flags.
+# .env.example is intentionally allowed (safe template only).
+.env
+.env.*
 !.env.example
 
 # Bun

@@ -1,13 +1,11 @@
 import { Injectable, Logger } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import {
-  TelegramConfig,
   SendMessageOptions,
   TelegramMessage,
-  TelegramUpdate,
   TelegramResponse,
   TelegramUser,
 } from './interfaces/telegram.interface';
-import { ConfigService } from '@nestjs/config';
 
 /**
  * Telegram service for interacting with Telegram Bot API.

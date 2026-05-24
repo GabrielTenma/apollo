@@ -3,7 +3,7 @@ import { AppService } from './app.service';
 
 @Controller()
 export class AppController {
-  constructor(private readonly appService: AppService) {}
+  constructor(readonly _appService: AppService) {}
 
   /**
    * Simple health endpoint used by the default NestJS starter.

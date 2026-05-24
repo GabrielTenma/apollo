@@ -1,4 +1,4 @@
-import { Module, Global, Injectable, Inject } from '@nestjs/common';
+import { Global, Injectable, Module } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { RoutineExecutionMode } from './routine.config';
 

@@ -1,9 +1,9 @@
 import {
-  Entity,
-  PrimaryGeneratedColumn,
   Column,
-  ManyToOne,
+  Entity,
   JoinColumn,
+  ManyToOne,
+  PrimaryGeneratedColumn,
   Unique,
 } from 'typeorm';
 import { TelegramBotEntity } from './telegram-bot.entity';
@@ -42,11 +42,17 @@ export class TelegramChatEntity {
   @Column({ type: 'jsonb', default: {} })
   settings: any;
 
-  @ManyToOne(() => TelegramBotEntity, (bot) => bot.chats)
+  @ManyToOne(
+    () => TelegramBotEntity,
+    (bot) => bot.chats,
+  )
   @JoinColumn({ name: 'bot_id' })
   bot: TelegramBotEntity;
 
-  @ManyToOne(() => UserEntity, (user) => user.telegramChats)
+  @ManyToOne(
+    () => UserEntity,
+    (user) => user.telegramChats,
+  )
   @JoinColumn({ name: 'linked_user_id' })
   linkedUser?: UserEntity;
 }

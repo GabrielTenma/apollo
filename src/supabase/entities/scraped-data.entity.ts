@@ -1,9 +1,9 @@
 import {
-  Entity,
-  PrimaryGeneratedColumn,
   Column,
-  ManyToOne,
+  Entity,
   JoinColumn,
+  ManyToOne,
+  PrimaryGeneratedColumn,
   Unique,
 } from 'typeorm';
 import { ScrapingSourceEntity } from './scraping-source.entity';
@@ -35,7 +35,10 @@ export class ScrapedDataEntity {
   @Column({ type: 'text', nullable: true })
   processing_log?: string;
 
-  @ManyToOne(() => ScrapingSourceEntity, (source) => source.scrapedData)
+  @ManyToOne(
+    () => ScrapingSourceEntity,
+    (source) => source.scrapedData,
+  )
   @JoinColumn({ name: 'source_id' })
   source?: ScrapingSourceEntity;
 }

@@ -1,12 +1,12 @@
+import * as os from 'node:os';
 import { Injectable, Logger } from '@nestjs/common';
-import { chromium, Browser, Page, BrowserContext } from 'playwright';
+import { Browser, BrowserContext, chromium, Page } from 'playwright';
 import {
+  ElementSelector,
+  ExtractConfig,
   ScrapeOptions,
   ScrapeResult,
-  ExtractConfig,
-  ElementSelector,
 } from './interfaces/scraper.interface';
-import * as os from 'node:os';
 
 /**
  * Advanced Playwright scraper service for web scraping operations.
@@ -401,9 +401,7 @@ export class ScraperService {
                 attempt: attempt + 1,
                 maxRetries: maxRetries + 1,
               });
-              await new Promise((r) =>
-                setTimeout(r, 1000 * Math.pow(2, attempt)),
-              );
+              await new Promise((r) => setTimeout(r, 1000 * 2 ** attempt));
             }
           }
         }

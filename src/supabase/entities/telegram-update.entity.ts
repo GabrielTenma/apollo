@@ -1,9 +1,9 @@
 import {
-  Entity,
-  PrimaryGeneratedColumn,
   Column,
-  ManyToOne,
+  Entity,
   JoinColumn,
+  ManyToOne,
+  PrimaryGeneratedColumn,
   Unique,
 } from 'typeorm';
 import { TelegramBotEntity } from './telegram-bot.entity';
@@ -41,7 +41,10 @@ export class TelegramUpdateEntity {
   @Column({ type: 'timestamptz', default: () => 'now()' })
   created_at: Date;
 
-  @ManyToOne(() => TelegramBotEntity, (bot) => bot.updates)
+  @ManyToOne(
+    () => TelegramBotEntity,
+    (bot) => bot.updates,
+  )
   @JoinColumn({ name: 'bot_id' })
   bot: TelegramBotEntity;
 }

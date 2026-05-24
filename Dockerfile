@@ -27,6 +27,18 @@ FROM node:20-alpine AS runner
 
 WORKDIR /app
 
+# ─────────────────────────────────────────────────────────────────────────────
+# SECURITY & CONFIGURATION CONTRACT
+#   • This image NEVER contains any .env file (see .dockerignore).
+#   • All configuration and secrets must be supplied at `docker run` time:
+#       docker run --env-file .env -p 3000:3000 yourimage
+#       or
+#       docker run -e DATABASE_URL=... -e OPENROUTER_API_KEY=... ...
+#   • The app (via bootstrap-env.ts + CommonConfigService) reads process.env
+#     at startup. Pre-injected vars from Docker are authoritative.
+#   • Never use COPY .env or build args for real credentials.
+# ─────────────────────────────────────────────────────────────────────────────
+
 # Install PostgreSQL client needed for conditional db_init.sql execution
 RUN apk add --no-cache curl postgresql-client
 
@@ -46,12 +58,14 @@ EXPOSE 3000
 HEALTHCHECK --interval=10s --timeout=5s --retries=3 --start-period=15s \
   CMD ["/usr/bin/curl", "-f", "http://localhost:3000/health", "--max-time", "5", "--retry", "3"] || exit 1
 
-# Read DATABASE_URL from environment variables; if set, run db_init.sql, then start server
+# Runtime entrypoint:
+# - Optionally run db_init.sql if DATABASE_URL + db_init.sql are present.
+# - DATABASE_URL (and all other config) must come from docker run --env-file or -e.
+# - Then start the NestJS server.
 CMD ["/bin/sh", "-c", "\
-  export DATABASE_URL=$(env | sed -n 's/^DATABASE_URL=//p'); \
   if [ -n \"$DATABASE_URL\" ] && [ -f db_init.sql ]; then \
     echo 'DATABASE_URL found — running db_init.sql'; \
-    psql \"$DATABASE_URL\" -f db_init.sql; \
+    psql \"$DATABASE_URL\" -f db_init.sql || echo 'db_init.sql had errors (continuing)'; \
   else \
     if [ -z \"$DATABASE_URL\" ]; then \
       echo 'No DATABASE_URL set — skipping db_init.sql'; \
@@ -59,5 +73,5 @@ CMD ["/bin/sh", "-c", "\
       echo 'db_init.sql not found — skipping'; \
     fi; \
   fi; \
-  exec node dist/main;\
+  exec node dist/main\
 "]

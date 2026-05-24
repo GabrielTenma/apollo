@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
-import { ScraperService } from '../scraper.service';
-import { ScrapeOptions } from '../interfaces/scraper.interface';
 import * as cheerio from 'cheerio';
+import { ScrapeOptions } from '../interfaces/scraper.interface';
+import { ScraperService } from '../scraper.service';
 
 /**
  * FinancialJuice - Interface for structured data NewsItem
@@ -89,7 +89,7 @@ export class FinancialJuiceTarget {
 
       const id = $item.attr('data-headlineid') || '';
 
-      if (id == '0') return; // ignore promotial content
+      if (id === '0') return; // ignore promotial content
 
       items.push({ id, title, link, time, tags });
     });

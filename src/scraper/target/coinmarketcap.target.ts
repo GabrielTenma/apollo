@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
-import { ScraperService } from '../scraper.service';
-import { ScrapeOptions } from '../interfaces/scraper.interface';
 import * as cheerio from 'cheerio';
+import { ScrapeOptions } from '../interfaces/scraper.interface';
+import { ScraperService } from '../scraper.service';
 
 /**
  * CoinmarketCap - Interface for structured data CoinData

@@ -1,15 +1,14 @@
-import { Inject, Injectable, OnModuleInit, Logger } from '@nestjs/common';
-import { RoutineService } from '../../common/routines/services/routine.service';
-import { CoinmarketCapTarget } from '../target/coinmarketcap.target';
-import { YahooFinanceTarget } from '../target/yahoofinance.target';
-import { FinancialJuiceTarget } from '../target/financialjuice.target';
-import { ScraperService } from '../scraper.service';
-import { APP_CONSTANTS, AppConstants } from '../../constants/app.constants';
-import { ScrapeOptions } from '../interfaces/scraper.interface';
-import { Repository } from 'typeorm';
-import { ScrapedDataEntity } from '../../supabase/entities/scraped-data.entity';
-import * as crypto from 'crypto';
+import { Inject, Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { RoutineService } from '../../common/routines/services/routine.service';
+import { APP_CONSTANTS, AppConstants } from '../../constants/app.constants';
+import { ScrapedDataEntity } from '../../supabase/entities/scraped-data.entity';
+import { ScrapeOptions } from '../interfaces/scraper.interface';
+import { ScraperService } from '../scraper.service';
+import { CoinmarketCapTarget } from '../target/coinmarketcap.target';
+import { FinancialJuiceTarget } from '../target/financialjuice.target';
+import { YahooFinanceTarget } from '../target/yahoofinance.target';
 
 /**
  * Service for executing scraper routines based on configuration.
@@ -26,7 +25,7 @@ export class ScraperRoutineService implements OnModuleInit {
     private readonly financialJuiceTarget: FinancialJuiceTarget,
     private readonly scraperService: ScraperService,
     @InjectRepository(ScrapedDataEntity)
-    private readonly scrapedDataRepository: Repository<ScrapedDataEntity>,
+    readonly _scrapedDataRepository: Repository<ScrapedDataEntity>,
     @Inject(APP_CONSTANTS) private readonly constants: AppConstants,
   ) {}
 

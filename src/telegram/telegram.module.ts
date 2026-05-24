@@ -1,6 +1,6 @@
-import { Module, Global } from '@nestjs/common';
-import { TelegramService } from './telegram.service';
+import { Global, Module } from '@nestjs/common';
 import { TelegramController } from './telegram.controller';
+import { TelegramService } from './telegram.service';
 
 /**
  * Module for Telegram Bot functionality.

@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { CommonConfigService } from '../common/config/config.service';
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
+import { CommonConfigService } from '../common/config/config.service';
 
 /**
  * Service wrapper around Supabase clients.
@@ -23,9 +23,9 @@ export class SupabaseService {
 
     for (const [key, value] of Object.entries(configs)) {
       if (key === 'SUPABASE_URL') {
-        connections['default'] = { ...connections['default'], url: value };
+        connections.default = { ...connections.default, url: value };
       } else if (key === 'SUPABASE_KEY') {
-        connections['default'] = { ...connections['default'], key: value };
+        connections.default = { ...connections.default, key: value };
       } else if (key.endsWith('_URL')) {
         const name = key.replace('SUPABASE_', '').replace('_URL', '');
         connections[name] = { ...connections[name], url: value };
@@ -77,7 +77,7 @@ export class SupabaseService {
   ): Promise<any> {
     const client = this.getClient(connection);
     let query: any = client.from(table).select('*');
-    if (filter && filter.field && filter.value !== undefined) {
+    if (filter?.field && filter.value !== undefined) {
       query = query.eq(filter.field, filter.value);
     }
     const { data, error } = await query;

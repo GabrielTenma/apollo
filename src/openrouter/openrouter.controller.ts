@@ -1,19 +1,15 @@
-import { Controller, Post, Body, Get, Inject, Logger } from '@nestjs/common';
-import { OpenRouterService } from './openrouter.service';
-import {
-  ChatCompletionOptions,
-  ChatCompletionResponse,
-  OpenRouterModel,
-} from './interfaces/openrouter.interface';
-import { Roles } from '../common/decorators/roles.decorator';
+import { Body, Controller, Get, Inject, Logger, Post } from '@nestjs/common';
 import { Public } from '../common/decorators/public.decorator';
+import { Roles } from '../common/decorators/roles.decorator';
+import { successResponse } from '../common/utils/response.util';
 import {
   APP_CONSTANTS,
   AppConstants,
   appConstants,
 } from '../constants/app.constants';
-import { successResponse } from '../common/utils/response.util';
 import { FinancialAgentService } from './agents/financial.agent';
+import { ChatCompletionOptions } from './interfaces/openrouter.interface';
+import { OpenRouterService } from './openrouter.service';
 
 /**
  * Controller for OpenRouter AI operations.
@@ -26,8 +22,8 @@ export class OpenRouterController {
 
   constructor(
     private readonly openRouterService: OpenRouterService,
-    private readonly financialAgentService: FinancialAgentService,
-    @Inject(APP_CONSTANTS) private readonly constants: AppConstants,
+    readonly _financialAgentService: FinancialAgentService,
+    @Inject(APP_CONSTANTS) readonly _constants: AppConstants,
   ) {}
 
   /**
@@ -137,7 +133,7 @@ export class OpenRouterController {
 
     // latest
     const contentLatest = appConstants.scrapedContentStore.get('completion');
-    if (contentLatest != undefined) {
+    if (contentLatest !== undefined) {
       content.push({
         name: 'latest',
         value: contentLatest,
@@ -148,7 +144,7 @@ export class OpenRouterController {
     const contentPrevious = appConstants.scrapedContentStore.get(
       'completion-previous',
     );
-    if (contentPrevious != undefined && contentPrevious != contentLatest) {
+    if (contentPrevious !== undefined && contentPrevious !== contentLatest) {
       content.push({
         name: 'previous',
         value: contentPrevious,

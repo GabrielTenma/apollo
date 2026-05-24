@@ -1,13 +1,13 @@
+import * as crypto from 'node:crypto';
 import {
-  ExceptionFilter,
-  Catch,
   ArgumentsHost,
+  Catch,
+  ExceptionFilter,
   HttpException,
   HttpStatus,
   Logger,
 } from '@nestjs/common';
 import { Request, Response } from 'express';
-import * as crypto from 'crypto';
 
 /**
  * Global HTTP exception filter that catches all exceptions (HTTP and non-HTTP)
@@ -43,8 +43,8 @@ export class HttpExceptionFilter implements ExceptionFilter {
       typeof message === 'object' && message !== null && 'message' in message
         ? (message as { message: string | string[] }).message
         : exception instanceof HttpException
-        ? (message as string)
-        : 'Internal server error';
+          ? (message as string)
+          : 'Internal server error';
 
     // Get or generate correlation ID
     const correlationId =

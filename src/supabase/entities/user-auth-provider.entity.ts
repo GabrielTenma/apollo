@@ -1,9 +1,9 @@
 import {
-  Entity,
-  PrimaryGeneratedColumn,
   Column,
-  ManyToOne,
+  Entity,
   JoinColumn,
+  ManyToOne,
+  PrimaryGeneratedColumn,
 } from 'typeorm';
 import { UserEntity } from './user.entity';
 
@@ -27,7 +27,10 @@ export class UserAuthProviderEntity {
   @Column({ type: 'timestamptz', default: () => 'now()' })
   created_at: Date;
 
-  @ManyToOne(() => UserEntity, (user) => user.authProviders)
+  @ManyToOne(
+    () => UserEntity,
+    (user) => user.authProviders,
+  )
   @JoinColumn({ name: 'user_id' })
   user: UserEntity;
 }

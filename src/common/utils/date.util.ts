@@ -93,7 +93,6 @@ export const dateDiff = (
       return Math.floor(diffMs / (1000 * 60));
     case 'hours':
       return Math.floor(diffMs / (1000 * 60 * 60));
-    case 'days':
     default:
       return Math.floor(diffMs / (1000 * 60 * 60 * 24));
   }

@@ -1,18 +1,18 @@
 import {
-  Controller,
-  Get,
-  Post,
   Body,
-  Param,
+  Controller,
   Delete,
-  Put,
+  Get,
   Logger,
+  Param,
+  Post,
+  Put,
 } from '@nestjs/common';
-import { SupabaseService } from './supabase.service';
 import {
   CreateRecordDto,
   UpdateRecordDto,
 } from './interfaces/supabase.interface';
+import { SupabaseService } from './supabase.service';
 
 /**
  * Controller for Supabase operations.

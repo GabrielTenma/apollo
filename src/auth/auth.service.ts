@@ -1,12 +1,12 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
+import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
-import { JwtPayload } from './strategies/jwt.strategy';
+import { Repository } from 'typeorm';
 import { UserEntity } from '../supabase/entities/user.entity';
 import { UserSessionEntity } from '../supabase/entities/user-session.entity';
+import { JwtPayload } from './strategies/jwt.strategy';
 
 export interface UserRoles {
   id: string;
@@ -86,7 +86,7 @@ export class AuthService {
       where: { email, is_active: true },
     });
 
-    if (!user || !user.password_hash) {
+    if (!user?.password_hash) {
       throw new UnauthorizedException('Invalid credentials');
     }
 

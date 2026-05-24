@@ -1,4 +1,4 @@
-import { Injectable, CanActivate, ExecutionContext } from '@nestjs/common';
+import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { ROLES_KEY } from '../decorators/roles.decorator';
 
@@ -36,10 +36,10 @@ export class RolesGuard implements CanActivate {
     const user = request.user;
 
     // If there is no user (should not happen if JwtAuthGuard ran first), deny access
-    if (!user || !user.roles) {
+    if (!user?.roles) {
       return false;
     }
 
-    return requiredRoles.some((role) => user.roles!.includes(role));
+    return requiredRoles.some((role) => user.roles?.includes(role));
   }
 }

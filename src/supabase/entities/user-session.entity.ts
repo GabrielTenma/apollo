@@ -1,9 +1,9 @@
 import {
-  Entity,
-  PrimaryGeneratedColumn,
   Column,
-  ManyToOne,
+  Entity,
   JoinColumn,
+  ManyToOne,
+  PrimaryGeneratedColumn,
 } from 'typeorm';
 import { UserEntity } from './user.entity';
 
@@ -33,7 +33,10 @@ export class UserSessionEntity {
   @Column({ type: 'timestamptz', default: () => 'now()' })
   created_at: Date;
 
-  @ManyToOne(() => UserEntity, (user) => user.sessions)
+  @ManyToOne(
+    () => UserEntity,
+    (user) => user.sessions,
+  )
   @JoinColumn({ name: 'user_id' })
   user: UserEntity;
 }

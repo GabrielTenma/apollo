@@ -19,7 +19,7 @@ export class CommonConfigService {
    */
   private readonly configMap: Record<string, string>;
 
-  constructor(private readonly configService: NestConfigService) {
+  constructor(readonly _configService: NestConfigService) {
     const map: Record<string, string> = {};
     for (const key of Object.keys(process.env)) {
       const value = process.env[key];
@@ -41,7 +41,7 @@ export class CommonConfigService {
     const raw = this.get(key);
     if (raw === undefined) return defaultValue;
     const parsed = parseInt(raw, 10);
-    return isNaN(parsed) ? defaultValue : parsed;
+    return Number.isNaN(parsed) ? defaultValue : parsed;
   }
 
   /** Retrieve a boolean value (case‑insensitive "true"). */

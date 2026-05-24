@@ -1,10 +1,10 @@
-import { Controller, Post, Body, Get, Headers, Logger } from '@nestjs/common';
-import { TelegramService } from './telegram.service';
+import { Body, Controller, Get, Headers, Logger, Post } from '@nestjs/common';
 import {
-  TelegramUpdate,
   SendMessageOptions,
   TelegramMessage,
+  TelegramUpdate,
 } from './interfaces/telegram.interface';
+import { TelegramService } from './telegram.service';
 
 /**
  * Controller for Telegram bot operations.
@@ -21,7 +21,7 @@ export class TelegramController {
   @Post('webhook')
   async webhook(
     @Body() update: TelegramUpdate,
-    @Headers('X-Telegram-Bot-Api-Secret-Token') secretToken?: string,
+    @Headers('X-Telegram-Bot-Api-Secret-Token') _secretToken?: string,
   ): Promise<any> {
     this.logger.verbose(`Received update: ${update.update_id}`);
 

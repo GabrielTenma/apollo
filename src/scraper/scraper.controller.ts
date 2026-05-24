@@ -1,37 +1,31 @@
+import * as crypto from 'node:crypto';
 import {
-  Controller,
-  Post,
   Body,
-  Get,
-  Query,
-  Injectable,
-  Inject,
-  Param,
-  Put,
+  Controller,
   Delete,
+  Get,
+  Inject,
   Logger,
+  Param,
+  Post,
+  Put,
 } from '@nestjs/common';
-import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
-import { ScraperService } from './scraper.service';
-import { ScrapeOptions, ExtractConfig } from './interfaces/scraper.interface';
-import {
-  ApiResponse,
-  errorResponse,
-  successResponse,
-} from '../common/utils/response.util';
-import { FinancialJuiceTarget, NewsItem } from './target/financialjuice.target';
-import { CoinData, CoinmarketCapTarget } from './target/coinmarketcap.target';
-import { YahooFinanceTarget, YahooNewsItem } from './target/yahoofinance.target';
+import { Repository } from 'typeorm';
 import { Public } from '../common/decorators/public.decorator';
+import { successResponse } from '../common/utils/response.util';
 import {
   APP_CONSTANTS,
-  appConstants,
   AppConstants,
+  appConstants,
 } from '../constants/app.constants';
-import { ScrapingSourceEntity } from '../supabase/entities/scraping-source.entity';
 import { ScrapedDataEntity } from '../supabase/entities/scraped-data.entity';
-import * as crypto from 'crypto';
+import { ScrapingSourceEntity } from '../supabase/entities/scraping-source.entity';
+import { ExtractConfig, ScrapeOptions } from './interfaces/scraper.interface';
+import { ScraperService } from './scraper.service';
+import { CoinmarketCapTarget } from './target/coinmarketcap.target';
+import { FinancialJuiceTarget } from './target/financialjuice.target';
+import { YahooFinanceTarget } from './target/yahoofinance.target';
 
 /**
  * Controller for web scraping operations.
@@ -42,10 +36,10 @@ export class ScraperController {
 
   constructor(
     private readonly scraperService: ScraperService,
-    private readonly financialJuiceTarget: FinancialJuiceTarget,
-    private readonly coinmarketCapTarget: CoinmarketCapTarget,
-    private readonly yahooFinanceTarget: YahooFinanceTarget,
-    @Inject(APP_CONSTANTS) private readonly constants: AppConstants,
+    readonly _financialJuiceTarget: FinancialJuiceTarget,
+    readonly _coinmarketCapTarget: CoinmarketCapTarget,
+    readonly _yahooFinanceTarget: YahooFinanceTarget,
+    @Inject(APP_CONSTANTS) readonly _constants: AppConstants,
     @InjectRepository(ScrapingSourceEntity)
     private readonly scrapingSourceRepository: Repository<ScrapingSourceEntity>,
     @InjectRepository(ScrapedDataEntity)
@@ -103,12 +97,12 @@ export class ScraperController {
   ): Promise<any> {
     this.logger.verbose(`Extracting structured data from: ${url}`);
     try {
-      const result = await this.scraperService.scrape({
+      const _result = await this.scraperService.scrape({
         url,
         waitForSelector: config.title || undefined,
       });
 
-      const browser = await this.scraperService['getBrowser']();
+      const browser = await this.scraperService.getBrowser();
       const context = await browser.newContext();
       const page = await context.newPage();
       await page.goto(url, { waitUntil: 'networkidle' });
@@ -150,7 +144,7 @@ export class ScraperController {
   async financialJuice(): Promise<any> {
     this.logger.verbose('Requested to scrape FinancialJuice');
     const content = appConstants.scrapedContentStore.get('financialjuice');
-    if (content != undefined) {
+    if (content !== undefined) {
       return content;
     }
     return successResponse(undefined, 'on process routine', 202);
@@ -163,7 +157,7 @@ export class ScraperController {
   async coinmarketCap(): Promise<any> {
     this.logger.verbose('Requested to scrape CoinmarketCap');
     const content = appConstants.scrapedContentStore.get('coinmarketcap');
-    if (content != undefined) {
+    if (content !== undefined) {
       return content;
     }
     return successResponse(undefined, 'on process routine', 202);
@@ -176,7 +170,7 @@ export class ScraperController {
   async yahooFinance(): Promise<any> {
     this.logger.verbose('Requested to scrape Yahoo Finance');
     const content = appConstants.scrapedContentStore.get('yahoofinance');
-    if (content != undefined) {
+    if (content !== undefined) {
       return content;
     }
     return successResponse(undefined, 'on process routine', 202);

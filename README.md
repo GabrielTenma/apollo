@@ -12,11 +12,11 @@
   <hr>
 </div>
 
-![Branches](https://www.shieldcn.dev/github/branches/GabrielTenma/apollo.svg?variant=ghost&size=xs)
+![Branches](https://www.shieldcn.dev/github/branches/GabrielTenma/apollo.svg?variant=secondary&size=xs)
 ![Last commit](https://www.shieldcn.dev/github/last-commit/GabrielTenma/apollo.svg?variant=secondary&size=xs)
-![Release](https://www.shieldcn.dev/github/release/GabrielTenma/apollo.svg?size=xs)
+![Release](https://www.shieldcn.dev/github/release/GabrielTenma/apollo.svg?variant=secondary&size=xs)
 ![CI](https://www.shieldcn.dev/github/ci/GabrielTenma/apollo.svg?variant=secondary&size=xs)
-![License](https://www.shieldcn.dev/github/license/GabrielTenma/apollo.svg?variant=ghost&size=xs)
+![License](https://www.shieldcn.dev/github/license/GabrielTenma/apollo.svg?variant=secondary&size=xs)
 ![Agent-friendly AGENTS.md](https://www.shieldcn.dev/badge/Agent--friendly-AGENTS.md-D97757.svg?variant=secondary&size=xs)
 
 ## Overview

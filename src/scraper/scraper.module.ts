@@ -1,12 +1,10 @@
-import { Module, Global } from '@nestjs/common';
-import { ScraperService } from './scraper.service';
-import { ScraperController } from './scraper.controller';
-import { FinancialJuiceTarget } from './target/financialjuice.target';
-import { CoinmarketCapTarget } from './target/coinmarketcap.target';
-import { YahooFinanceTarget } from './target/yahoofinance.target';
+import { Global, Module } from '@nestjs/common';
 import { AppConstantsModule } from '../constants/app.module';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { ScrapedDataEntity } from '../supabase/entities/scraped-data.entity';
+import { ScraperController } from './scraper.controller';
+import { ScraperService } from './scraper.service';
+import { CoinmarketCapTarget } from './target/coinmarketcap.target';
+import { FinancialJuiceTarget } from './target/financialjuice.target';
+import { YahooFinanceTarget } from './target/yahoofinance.target';
 
 /**
  * Module for Playwright-based web scraping functionality.

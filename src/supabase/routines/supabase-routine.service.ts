@@ -1,4 +1,4 @@
-import { Injectable, OnModuleInit, Logger } from '@nestjs/common';
+import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { RoutineService } from '../../common/routines/services/routine.service';
 import { SupabaseService } from '../supabase.service';
 
@@ -13,7 +13,7 @@ export class SupabaseRoutineService implements OnModuleInit {
 
   constructor(
     private readonly routineService: RoutineService,
-    private readonly supabaseService: SupabaseService,
+    readonly _supabaseService: SupabaseService,
   ) {}
 
   onModuleInit() {

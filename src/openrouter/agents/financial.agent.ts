@@ -1,10 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { OpenRouterService } from '../openrouter.service';
-import {
-  ChatCompletionOptions,
-  ChatMessage,
-} from '../interfaces/openrouter.interface';
 import { PromptConfig } from '../interfaces/financialagent.interface';
+import { OpenRouterService } from '../openrouter.service';
 
 @Injectable()
 export class FinancialAgentService {

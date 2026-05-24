@@ -1,8 +1,8 @@
-import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import { FeatureConfigEntity } from './feature-config.entity';
+import { TelegramChatEntity } from './telegram-chat.entity';
 import { UserAuthProviderEntity } from './user-auth-provider.entity';
 import { UserSessionEntity } from './user-session.entity';
-import { TelegramChatEntity } from './telegram-chat.entity';
-import { FeatureConfigEntity } from './feature-config.entity';
 
 @Entity({ name: 'users' })
 export class UserEntity {
@@ -30,15 +30,27 @@ export class UserEntity {
   @Column({ type: 'timestamptz', default: () => 'now()' })
   updated_at: Date;
 
-  @OneToMany(() => UserAuthProviderEntity, (provider) => provider.user)
+  @OneToMany(
+    () => UserAuthProviderEntity,
+    (provider) => provider.user,
+  )
   authProviders: UserAuthProviderEntity[];
 
-  @OneToMany(() => UserSessionEntity, (session) => session.user)
+  @OneToMany(
+    () => UserSessionEntity,
+    (session) => session.user,
+  )
   sessions: UserSessionEntity[];
 
-  @OneToMany(() => TelegramChatEntity, (chat) => chat.linkedUser)
+  @OneToMany(
+    () => TelegramChatEntity,
+    (chat) => chat.linkedUser,
+  )
   telegramChats: TelegramChatEntity[];
 
-  @OneToMany(() => FeatureConfigEntity, (config) => config.updatedBy)
+  @OneToMany(
+    () => FeatureConfigEntity,
+    (config) => config.updatedBy,
+  )
   updatedConfigs: FeatureConfigEntity[];
 }

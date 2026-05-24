@@ -1,20 +1,20 @@
 import { Module, Provider } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { APP_INTERCEPTOR, APP_FILTER } from '@nestjs/core';
+import { APP_FILTER, APP_INTERCEPTOR } from '@nestjs/core';
 import { EvlogModule } from 'evlog/nestjs';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { CommonModule } from './common/common.module';
 import { AuthModule } from './auth/auth.module';
-import { ScraperModule } from './scraper/scraper.module';
-import { OpenRouterModule } from './openrouter/openrouter.module';
-import { TelegramModule } from './telegram/telegram.module';
-import { TransformInterceptor } from './common/interceptors/transform.interceptor';
+import { CommonModule } from './common/common.module';
 import { HttpExceptionFilter } from './common/filters/http-exception.filter';
+import { TransformInterceptor } from './common/interceptors/transform.interceptor';
 import { openRouterConfig } from './openrouter/config/openrouter.config';
-import { telegramConfig } from './telegram/config/telegram.config';
+import { OpenRouterModule } from './openrouter/openrouter.module';
+import { ScraperModule } from './scraper/scraper.module';
 import { supabaseConfig } from './supabase/config/supabase.config';
 import { SupabaseModule } from './supabase/supabase.module';
+import { telegramConfig } from './telegram/config/telegram.config';
+import { TelegramModule } from './telegram/telegram.module';
 
 const interceptors: Provider[] = [
   {

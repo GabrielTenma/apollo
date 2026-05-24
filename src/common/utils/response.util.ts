@@ -43,7 +43,7 @@ export const successResponse = <T>(
 export const errorResponse = (
   message: string,
   statusCode = 400,
-  errors?: string[],
+  _errors?: string[],
   correlationId?: string,
 ): ApiResponse<null> => ({
   success: false,

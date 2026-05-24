@@ -1,7 +1,7 @@
-import { Module, Global } from '@nestjs/common';
-import { SupabaseService } from './supabase.service';
-import { SupabaseController } from './supabase.controller';
+import { Global, Module } from '@nestjs/common';
 import { SupabaseTypeOrmModule } from '../common/typeorm/typeorm.module';
+import { SupabaseController } from './supabase.controller';
+import { SupabaseService } from './supabase.service';
 
 /**
  * Global module for Supabase integration.

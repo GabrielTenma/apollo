@@ -1,19 +1,18 @@
-import { Module, Global } from '@nestjs/common';
-import { APP_GUARD, APP_INTERCEPTOR, APP_FILTER } from '@nestjs/core';
-import { JwtAuthGuard } from './guards/jwt-auth.guard';
-import { RolesGuard } from './guards/roles.guard';
-import { TransformInterceptor } from './interceptors/transform.interceptor';
-import { LoggingInterceptor } from './interceptors/logging.interceptor';
-import { HttpExceptionFilter } from './filters/http-exception.filter';
-import { RoutineService } from './routines/services/routine.service';
-import { RoutineConfigModule } from './routines/config/routine.config.module';
-import { ConfigModule } from './config/config.module';
-import { CommonConfigService } from './config/config.service';
+import { Global, Module } from '@nestjs/common';
+import { APP_FILTER, APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
+import { TypeOrmModule } from '@nestjs/typeorm';
 import { OpenrouterRoutineService } from '../openrouter/routines/openrouter-routine.service';
 import { ScraperRoutineService } from '../scraper/routines/scraper-routine.service';
 import { ScrapedDataEntity } from '../supabase/entities/scraped-data.entity';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { ConfigModule } from './config/config.module';
+import { CommonConfigService } from './config/config.service';
+import { HttpExceptionFilter } from './filters/http-exception.filter';
+import { JwtAuthGuard } from './guards/jwt-auth.guard';
+import { RolesGuard } from './guards/roles.guard';
+import { LoggingInterceptor } from './interceptors/logging.interceptor';
+import { TransformInterceptor } from './interceptors/transform.interceptor';
+import { RoutineConfigModule } from './routines/config/routine.config.module';
+import { RoutineService } from './routines/services/routine.service';
 /**
  * Global module that aggregates and exports shared cross-cutting concerns
  * such as authentication guards, role-based authorization, response transformers,

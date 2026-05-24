@@ -1,0 +1,64 @@
+name: Cache Warmer (Manual)
+
+on:
+  workflow_dispatch:
+    inputs:
+      force-refresh:
+        description: "Force fresh npm + Playwright install (ignore existing caches)"
+        required: false
+        default: false
+        type: boolean
+      node-version:
+        description: "Node.js version (e.g. lts/*, 20, 22)"
+        required: false
+        default: "lts/*"
+        type: string
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+jobs:
+  warm-caches:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: ${{ inputs.node-version }}
+
+      - name: Cache node_modules
+        id: npm-cache
+        uses: actions/cache@v4
+        with:
+          path: node_modules
+          key: npm-${{ runner.os }}-${{ inputs.node-version }}-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            npm-${{ runner.os }}-${{ inputs.node-version }}-
+
+      - name: Install dependencies
+        if: steps.npm-cache.outputs.cache-hit != 'true' || inputs.force-refresh == true
+        run: npm ci --legacy-peer-deps
+
+      - name: Cache Playwright browsers
+        id: pw-cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ inputs.node-version }}-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            playwright-${{ runner.os }}-${{ inputs.node-version }}-
+
+      - name: Install Playwright browsers (with system deps)
+        if: steps.pw-cache.outputs.cache-hit != 'true' || inputs.force-refresh == true
+        run: npx playwright install --with-deps
+
+      - name: Cache warming summary
+        run: |
+          echo "✅ Cache warming job completed"
+          echo "node_modules cache hit: ${{ steps.npm-cache.outputs.cache-hit || 'false' }}"
+          echo "Playwright browsers cache hit: ${{ steps.pw-cache.outputs.cache-hit || 'false' }}"
+          echo "Force refresh was: ${{ inputs.force-refresh }}"

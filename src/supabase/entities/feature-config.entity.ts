@@ -1,9 +1,9 @@
 import {
-  Entity,
-  PrimaryGeneratedColumn,
   Column,
-  ManyToOne,
+  Entity,
   JoinColumn,
+  ManyToOne,
+  PrimaryGeneratedColumn,
 } from 'typeorm';
 import { UserEntity } from './user.entity';
 
@@ -54,7 +54,10 @@ export class FeatureConfigEntity {
   @Column({ type: 'timestamptz', default: () => 'now()' })
   updated_at: Date;
 
-  @ManyToOne(() => UserEntity, (user) => user.updatedConfigs)
+  @ManyToOne(
+    () => UserEntity,
+    (user) => user.updatedConfigs,
+  )
   @JoinColumn({ name: 'updated_by' })
   updatedBy?: UserEntity;
 }

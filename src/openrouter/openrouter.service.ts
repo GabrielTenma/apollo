@@ -3,7 +3,6 @@ import { ConfigService } from '@nestjs/config';
 import {
   ChatCompletionOptions,
   ChatCompletionResponse,
-  OpenRouterConfig,
   OpenRouterModel,
 } from './interfaces/openrouter.interface';
 

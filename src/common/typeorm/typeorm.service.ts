@@ -1,10 +1,10 @@
-import { Injectable, Inject } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import {
   DataSource,
-  Repository,
+  DeepPartial,
   EntityTarget,
   QueryDeepPartialEntity,
-  DeepPartial,
+  Repository,
 } from 'typeorm';
 
 /**

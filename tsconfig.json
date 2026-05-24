@@ -1,26 +1,32 @@
 {
-  "compilerOptions": {
-    "module": "commonjs",
-    "declaration": true,
-    "removeComments": true,
-    "emitDecoratorMetadata": true,
-    "experimentalDecorators": true,
-    "allowSyntheticDefaultImports": true,
-    "target": "es2017",
-    "sourceMap": true,
-    "outDir": "./dist",
-    "baseUrl": "./",
-    "incremental": true,
-    "skipLibCheck": true,
-    "strictNullChecks": false,
-    "noImplicitAny": false,
-    "strictBindCallApply": false,
-    "forceConsistentCasingInFileNames": false,
-    "noFallthroughCasesInSwitch": false,
-    "jsx": "react-jsx",
-    "esModuleInterop": true,
-    "skipDefaultLibCheck": true,
-    "types": ["node", "jest"]
-  },
-  "exclude": ["node_modules", "test", "src/web", "src/scripts", "vite.config.ts"]
+	"compilerOptions": {
+		"module": "commonjs",
+		"declaration": true,
+		"removeComments": true,
+		"emitDecoratorMetadata": true,
+		"experimentalDecorators": true,
+		"allowSyntheticDefaultImports": true,
+		"target": "es2017",
+		"sourceMap": true,
+		"outDir": "./dist",
+		"baseUrl": "./",
+		"incremental": true,
+		"skipLibCheck": true,
+		"strictNullChecks": false,
+		"noImplicitAny": false,
+		"strictBindCallApply": false,
+		"forceConsistentCasingInFileNames": false,
+		"noFallthroughCasesInSwitch": false,
+		"jsx": "react-jsx",
+		"esModuleInterop": true,
+		"skipDefaultLibCheck": true,
+		"types": ["node", "jest"]
+	},
+	"exclude": [
+		"node_modules",
+		"test",
+		"src/web",
+		"src/scripts",
+		"vite.config.ts"
+	]
 }

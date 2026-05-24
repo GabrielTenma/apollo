@@ -2,16 +2,16 @@ import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
-import { SupabaseOrmService } from './typeorm.service';
-import { UserEntity } from '../../supabase/entities/user.entity';
-import { UserAuthProviderEntity } from '../../supabase/entities/user-auth-provider.entity';
-import { UserSessionEntity } from '../../supabase/entities/user-session.entity';
+import { FeatureConfigEntity } from '../../supabase/entities/feature-config.entity';
+import { ScrapedDataEntity } from '../../supabase/entities/scraped-data.entity';
+import { ScrapingSourceEntity } from '../../supabase/entities/scraping-source.entity';
 import { TelegramBotEntity } from '../../supabase/entities/telegram-bot.entity';
 import { TelegramChatEntity } from '../../supabase/entities/telegram-chat.entity';
 import { TelegramUpdateEntity } from '../../supabase/entities/telegram-update.entity';
-import { ScrapingSourceEntity } from '../../supabase/entities/scraping-source.entity';
-import { ScrapedDataEntity } from '../../supabase/entities/scraped-data.entity';
-import { FeatureConfigEntity } from '../../supabase/entities/feature-config.entity';
+import { UserEntity } from '../../supabase/entities/user.entity';
+import { UserAuthProviderEntity } from '../../supabase/entities/user-auth-provider.entity';
+import { UserSessionEntity } from '../../supabase/entities/user-session.entity';
+import { SupabaseOrmService } from './typeorm.service';
 
 /**
  * Detect the TypeORM dialect from a connection URL.
@@ -19,7 +19,9 @@ import { FeatureConfigEntity } from '../../supabase/entities/feature-config.enti
  * @param url - The raw DATABASE_URL string.
  * @returns One of `'postgres' | 'sqlite' | 'mysql' | 'mariadb' | 'mssql' | 'oracle'`.
  */
-function resolveDialect(url: string): 'postgres' | 'sqlite' | 'mysql' | 'mariadb' | 'mssql' | 'oracle' {
+function resolveDialect(
+  url: string,
+): 'postgres' | 'sqlite' | 'mysql' | 'mariadb' | 'mssql' | 'oracle' {
   const lower = url.toLowerCase().trim();
   if (lower.startsWith('sqlite:')) return 'sqlite';
   if (lower.startsWith('mysql:')) return 'mysql';
