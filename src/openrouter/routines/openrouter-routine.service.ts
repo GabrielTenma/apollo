@@ -67,21 +67,21 @@ export class OpenrouterRoutineService implements OnModuleInit {
           appConstants.scrapedContentStore.set('completion', chatCompletion);
 
           // Put into repository
-          const chatCompletionDataEntity: ScrapedDataEntity = {
-            source_id: 'ac851202-bc72-43c8-b784-e213b5907159',
-            parsed_data: { chatCompletion: chatCompletion },
-            raw_content: Buffer.from(chatCompletion || '').toString('utf-8'),
-            data_hash: crypto
-              .createHash('sha256')
-              .update(chatCompletion || '')
-              .digest('hex')
-              .substring(0, 64),
-            status: 'result',
-          };
-          const scrapedData = this.scrapedDataRepository.create(
-            chatCompletionDataEntity,
-          );
-          await this.scrapedDataRepository.save(scrapedData);
+          // const chatCompletionDataEntity: ScrapedDataEntity = {
+          //   source_id: 'ac851202-bc72-43c8-b784-e213b5907159',
+          //   parsed_data: { chatCompletion: chatCompletion },
+          //   raw_content: Buffer.from(chatCompletion || '').toString('utf-8'),
+          //   data_hash: crypto
+          //     .createHash('sha256')
+          //     .update(chatCompletion || '')
+          //     .digest('hex')
+          //     .substring(0, 64),
+          //   status: 'result',
+          // };
+          // const scrapedData = this.scrapedDataRepository.create(
+          //   chatCompletionDataEntity,
+          // );
+          // await this.scrapedDataRepository.save(scrapedData);
 
           // adjust routine time
           this.routineTime = 150000;

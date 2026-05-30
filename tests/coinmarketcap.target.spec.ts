@@ -60,7 +60,7 @@ test.describe("CoinmarketCapTarget", () => {
 	test.beforeEach(async ({ page }) => {
 		await page.goto(URL, { waitUntil: "domcontentloaded", timeout: TIMEOUT });
 		await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
-		await page.locator(SELECTOR).first({ timeout: TIMEOUT });
+		await page.locator(SELECTOR).first().waitFor({ timeout: TIMEOUT });
 	});
 
 	test("page loads and cmc-table rows are present", async ({ page }) => {
@@ -85,7 +85,7 @@ test.describe("CoinmarketCapTarget", () => {
 			expect(typeof coin.marketCap).toBe("string");
 			expect(typeof coin.volume24h).toBe("string");
 			expect(typeof coin.circulatingSupply).toBe("string");
-			expect(coin.name.length).toBeGreaterThan(0);
+			expect(String(coin.name).length).toBeGreaterThan(0);
 		}
 	});
 
@@ -120,8 +120,8 @@ test.describe("CoinmarketCapTarget", () => {
 		const coins = parsePriceList(html);
 
 		for (const coin of coins) {
-			expect(coin.name.length).toBeGreaterThan(0);
-			expect(coin.symbol.length).toBeGreaterThan(0);
+			expect(String(coin.name).length).toBeGreaterThan(0);
+			expect(String(coin.symbol).length).toBeGreaterThan(0);
 		}
 	});
 });

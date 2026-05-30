@@ -29,7 +29,7 @@ export class ScraperService {
    * @param headless - Whether to run in headless mode (default: true)
    * @returns Browser instance
    */
-  private async getBrowser(headless = true): Promise<Browser> {
+  async getBrowser(headless = true): Promise<Browser> {
     if (!this.browser) {
       this.browser = await chromium.launch({
         headless,
