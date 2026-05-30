@@ -62,7 +62,7 @@
 	"devDependencies": {
 		"@iconify-json/tabler": "^1.2.35",
 		"@iconify/tailwind4": "^1.2.3",
-		"@nestjs/cli": "^9.0.0",
+		"@nestjs/cli": "^10.0.0",
 		"@nestjs/schematics": "^9.0.0",
 		"@nestjs/testing": "^9.0.0",
 		"@playwright/test": "^1.59.1",
